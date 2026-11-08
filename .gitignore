@@ -1,0 +1,62 @@
+# Python et environnements locaux
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+.venv/
+venv/
+env/
+.runtime/
+.runtime.verrou/
+__pypackages__/
+
+# Tests, couverture et outils
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+junit.xml
+.tox/
+.nox/
+
+# Roues du mode hors ligne (archive de Release à part) et rapport de génération (fichier de travail)
+vendor/wheels/
+RAPPORT_GENERATION.md
+
+# Sorties de publication, sans ignorer les scripts de build
+/dist/
+/build/temp*/
+/build/lib*/
+/release-check/
+/SHA256SUMS
+
+# Données locales, journaux et secrets
+/donnees_utilisateur/
+/user_data/
+/exports/
+/logs/
+*.log
+*.log.*
+*.sqlite
+*.sqlite3
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Éditeurs et système
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Liste locale des mots de métier admis par le contrôle de rédaction (fichier de travail)
+.mots_toleres.txt

@@ -1,0 +1,2122 @@
+import os
+import glob
+
+import pandas as pd
+import numpy as np 
+
+import datetime
+
+import pickle
+
+from math import cos, sin, radians, pi, log, e
+
+import itertools
+
+
+# %%
+#####################################################################
+
+def read_setting_file(filename):
+    with open(filename, 'r') as f:
+        lines = f.readlines()
+        setting_data = list()
+        endfile = False
+        i = 0
+        while not endfile:
+            line = lines[i]
+            # print(line)
+            if line.startswith("$$Start"):
+                j = 1
+                endkeyword = False
+                while not endkeyword:
+                    content=lines[i + j+1]
+                    if content.startswith("$$End"):
+                        i = i + j
+                        endkeyword = True					
+                    else:
+                        if content.startswith("\n"):						
+                            j = j + 1	
+                        else:
+                            setting_data.append(content.strip('\n'))
+                            j = j + 1										
+            i = i +1
+            if i == len(lines):
+                endfile = True
+	
+    return setting_data    
+# _____________________________________________________________________
+def get_data_set(items,arg):
+
+    param = {}
+
+    for item in items:
+        for i in range(len(arg)):
+            if "$"+item in arg[i]:
+                param[item]=arg[i+1]
+
+    return param
+# _____________________________________________________________________
+def set_input_variables(filename):
+    global a1,D1,D3,D4,c,eu1,eu2,eu3,lg1,lg2,lg3,h4,wg1,wg2,wg3,FZ,FY,gB,gK,gT,MZ,MY,p,T,deltaTK,deltaTT,alphaK,alphaT,E,fj,f,Rp02t,KS,S,phiS
+    global type_raccordement,situation,type_fond
+    
+    # get the problem configuration parameters
+    setting_data = read_setting_file('SettingFile.txt')    
+    parameters = ['type_raccordement','situation','type_fond']    
+    param = get_data_set(parameters,setting_data)    
+    type_raccordement = str(param['type_raccordement'])
+    situation = str(param['situation'])
+    type_fond = str(param['type_fond'])
+    
+    # get input varables for creating dataset
+    df = pd.read_csv(filename,delimiter=";")
+    
+    a1 = df['a1'].dropna() ; a1 = a1.tolist()
+    D1 = df['D1'].dropna() ; D1 = D1.tolist() 
+    D3 = df['D3'].dropna() ; D3 = D3.tolist() 
+    D4 = df['D4'].dropna() ; D4 = D4.tolist() 
+    c = df['c'].dropna() ; c = c.tolist() 
+    eu1 = df['eu1'].dropna() ; eu1 = eu1.tolist() 
+    eu2 = df['eu2'].dropna() ; eu2 = eu2.tolist() 
+    eu3 = df['eu3'].dropna() ; eu3 = eu3.tolist() 
+    lg1 = df['lg1'].dropna() ; lg1 = lg1.tolist() 
+    lg2 = df['lg2'].dropna() ; lg2 = lg2.tolist() 
+    lg3 = df['lg3'].dropna() ; lg3 = lg3.tolist() 
+    h4 = df['h4'].dropna() ; h4 = h4.tolist() 
+    wg1 = df['wg1'].dropna() ; wg1 = wg1.tolist() 
+    wg2 = df['wg2'].dropna() ; wg2 = wg2.tolist() 
+    wg3 = df['wg3'].dropna() ; wg3 = wg3.tolist() 
+    FZ = df['FZ'].dropna() ; FZ = FZ.tolist() 
+    FY = df['FY'].dropna() ; FY = FY.tolist() 
+    gB = df['gB'].dropna() ; gB = gB.tolist() 
+    gK = df['gK'].dropna() ; gK = gK.tolist() 
+    gT = df['gT'].dropna() ; gT = gT.tolist() 
+    MZ = df['MZ'].dropna() ; MZ = MZ.tolist() 
+    MY = df['MY'].dropna() ; MY = MY.tolist() 
+    p = df['p'].dropna() ; p = p.tolist() 
+    T = df['T'].dropna() ; T = T.tolist() 
+    deltaTK = df['deltaTK'].dropna() ; deltaTK = deltaTK.tolist() 
+    deltaTT = df['deltaTT'].dropna() ; deltaTT = deltaTT.tolist() 
+    alphaK = df['alphaK'].dropna() ; alphaK = alphaK.tolist() 
+    alphaT = df['alphaT'].dropna() ; alphaT = alphaT.tolist() 
+    E = df['E'].dropna() ; E = E.tolist() 
+    fj = df['fj'].dropna() ; fj = fj.tolist() 
+    f = df['f'].dropna() ; f = f.tolist() 
+    Rp02t = df['Rp02t'].dropna() ; Rp02t = Rp02t.tolist() 
+    KS = df['KS'].dropna() ; KS = KS.tolist() 
+    S = df['S'].dropna() ; S = S.tolist() 
+    phiS = df['phiS'].dropna() ; phiS = phiS.tolist() 
+    
+    # create_dataset
+    df = pd.DataFrame()
+    
+    iter_vars = zip(a1,D1,D3,D4,c,eu1,eu2,eu3,lg1,lg2,lg3,h4,wg1,wg2,wg3,FZ,FY,gB,gK,gT,MZ,MY,p,T,deltaTK,deltaTT,alphaK,alphaT,E,fj,f,Rp02t,KS,S,phiS)
+    
+    for a1_i,D1_i,D3_i,D4_i,c_i,eu1_i,eu2_i,eu3_i,lg1_i,lg2_i,lg3_i,h4_i,wg1_i,wg2_i,wg3_i,FZ_i,FY_i,gB_i,gK_i,gT_i,MZ_i,MY_i,p_i,T_i,deltaTK_i,deltaTT_i,alphaK_i,alphaT_i,E_i,fj_i,f_i,Rp02t_i,KS_i,S_i,phiS_i in iter_vars:                                   
+        # Pour eviter de calculer des géometries sur laquelles on ne peut pas évaluer les contraintes aux points de références
+        cond1 = 0.5 <= eu3_i/eu1_i and eu3_i/eu1_i <= 1.3
+        cond2 = 30 <= D1_i/eu2_i and D1_i/eu2_i <= 400
+        if type_raccordement == 'AB':
+            cond3 = 0 <= h4_i/eu2_i and h4_i/eu2_i <= 4
+        elif type_raccordement =='C':
+            cond3 = True
+        else:
+            error_message = '! type_raccordement should be AB or C !'
+            raise ValueError(error_message)
+        if (D3_i == D4_i) and (h4_i == 0) and (eu2_i == eu1_i):
+        # if (D3_i == D4_i) and (h4_i == 0) and (a1_i == eu3_i) and (eu2_i == eu1_i):
+        # if (D3_i == D4_i) and (c_i == 0) and (h4_i == 0) and (a1_i == eu3_i) and (eu2_i == eu1_i):
+            cond4 = True
+        else:
+            cond4 = False
+        if cond1 and cond2 and cond3 and cond4 :
+            dic = {'a1' : a1_i , 'D1' : D1_i,'D3' : D3_i , 'D4' : D4_i,
+                   'c' : c_i , 'eu1' : eu1_i,'eu2' : eu2_i , 'eu3' : eu3_i,
+                   'lg1' : lg1_i , 'lg2' : lg2_i,'lg3' : lg3_i,
+                   'h4' : h4_i , 'wg1' : wg1_i,'wg2' : wg2_i,
+                   'wg3' : wg3_i , 'FZ' : FZ_i,'FY' : FY_i,
+                   'gB' : gB_i , 'gK' : gK_i,'gT' : gT_i,
+                   'MZ' : MZ_i , 'MY' : MY_i,'p' : p_i,
+                   'T' : T_i , 'deltaTK' : deltaTK_i,'deltaTT' : deltaTT_i,
+                   'E' : E_i , 'alphaT' : alphaT_i,'alphaK' : alphaK_i,
+                   'Rp02t' : Rp02t_i , 'f' : f_i,'fj' : fj_i,
+                   'phiS' : phiS_i , 'S' : S_i,'KS' : KS_i                   
+                   
+                   }
+            df = df.append(dic, ignore_index=True)        
+        
+        else :
+            pass
+            
+    file_name = 'input_data_set_CODAP.csv'
+    df.to_csv(file_name, sep=';', encoding='utf-8')
+    
+    df.to_pickle('input_data_set_CODAP')
+    
+    a1 = df.filter(['a1']).values.astype('float32') 
+    D1 = df.filter(['D1']).values.astype('float32') 
+    D3 = df.filter(['D3']).values.astype('float32') 
+    D4 = df.filter(['D4']).values.astype('float32') 
+    c = df.filter(['c']).values.astype('float32') 
+    eu1 = df.filter(['eu1']).values.astype('float32') 
+    eu2 = df.filter(['eu2']).values.astype('float32') 
+    eu3 = df.filter(['eu3']).values.astype('float32') 
+    lg1 = df.filter(['lg1']).values.astype('float32') 
+    lg2 = df.filter(['lg2']).values.astype('float32') 
+    lg3 = df.filter(['lg3']).values.astype('float32') 
+    h4 = df.filter(['h4']).values.astype('float32') 
+    wg1 = df.filter(['wg1']).values.astype('float32') 
+    wg2 = df.filter(['wg2']).values.astype('float32') 
+    wg3 = df.filter(['wg3']).values.astype('float32') 
+    FZ = df.filter(['FZ']).values.astype('float32') 
+    FY = df.filter(['FY']).values.astype('float32') 
+    gB = df.filter(['gB']).values.astype('float32') 
+    gK = df.filter(['gK']).values.astype('float32') 
+    gT = df.filter(['gT']).values.astype('float32') 
+    MZ = df.filter(['MZ']).values.astype('float32') 
+    MY = df.filter(['MY']).values.astype('float32') 
+    p = df.filter(['p']).values.astype('float32') 
+    T = df.filter(['T']).values.astype('float32') 
+    deltaTK = df.filter(['deltaTK']).values.astype('float32') 
+    deltaTT = df.filter(['deltaTT']).values.astype('float32') 
+    alphaK = df.filter(['alphaK']).values.astype('float32') 
+    alphaT = df.filter(['alphaT']).values.astype('float32') 
+    E = df.filter(['E']).values.astype('float32') 
+    fj = df.filter(['fj']).values.astype('float32') 
+    f = df.filter(['f']).values.astype('float32') 
+    Rp02t = df.filter(['Rp02t']).values.astype('float32') 
+    KS = df.filter(['KS']).values.astype('float32') 
+    S = df.filter(['S']).values.astype('float32') 
+    phiS = df.filter(['phiS']).values.astype('float32') 
+
+    
+#####################################################################
+def write_outputs():
+
+    df = pd.read_pickle('input_data_set_CODAP')
+    df_8 = pd.DataFrame({'R1':R1.ravel(),'R2': R2.ravel(), 'R3': R3.ravel(),'R4':R4.ravel(),'R5':R5.ravel(),'R6': R6.ravel(), 'R7': R7.ravel()}) 
+    df_9 = pd.DataFrame({'delta1':delta1.ravel(),'delta2': delta2.ravel(), 'lambda1': lambda1.ravel()}) 
+    
+    df_10 = pd.DataFrame({'sigma_mx1':sigma_mx1.ravel(),'sigma_bx1': sigma_bx1.ravel(), 'sigma_my1': sigma_my1.ravel(), 'sigma_by1': sigma_by1.ravel()}) 
+    df_11 = pd.DataFrame({'sigma_mx2':sigma_mx2.ravel(),'sigma_bx2': sigma_bx2.ravel(), 'sigma_my2': sigma_my2.ravel(), 'sigma_by2': sigma_by2.ravel()}) 
+    df_12 = pd.DataFrame({'sigma_mx3':sigma_mx3.ravel(),'sigma_bx3': sigma_bx3.ravel(), 'sigma_my3': sigma_my3.ravel(), 'sigma_by3': sigma_by3.ravel()}) 
+
+    df_1 = pd.DataFrame({'C21':C21.ravel(),'C31': C31.ravel(), 'C41': C41.ravel(),'C51':C51.ravel(),'C61':C61.ravel(),'C71': C71.ravel(),'C81': C81.ravel(),'C91': C91.ravel()}) 
+    df_2 = pd.DataFrame({'C12':C12.ravel(),'C22': C22.ravel(), 'C32': C32.ravel(),'C52':C52.ravel(),'C62':C62.ravel(),'C72': C72.ravel(),'C82': C82.ravel(),'C92': C92.ravel()}) 
+    df_3 = pd.DataFrame({'C13':C13.ravel(),'C73': C73.ravel()}) 
+    df_4 = pd.DataFrame({'C24':C24.ravel(),'C34': C34.ravel(), 'C54': C54.ravel(),'C64':C64.ravel(),'C84':C84.ravel(),'C94': C94.ravel()}) 
+    df_5 = pd.DataFrame({'C25':C25.ravel(),'C35': C35.ravel(), 'C55': C55.ravel(),'C65':C65.ravel(),'C85':C85.ravel(),'C95': C95.ravel()}) 
+    df_6 = pd.DataFrame({'C26':C26.ravel(),'C36': C36.ravel(), 'C56': C56.ravel(),'C66':C66.ravel(),'C86':C86.ravel(),'C96': C96.ravel()}) 
+    df_7 = pd.DataFrame({'C27':C27.ravel(),'C37': C37.ravel(), 'C57': C57.ravel(),'C67':C67.ravel(),'C87':C87.ravel(),'C97': C97.ravel()}) 
+    
+    df_out = pd.concat([df, df_8,df_9,df_10,df_11,df_12, df_1,df_2,df_3,df_4,df_5,df_6,df_7], axis=1)
+    
+    # if df_out.shape[0] != 0:
+    #     column_to_drop = ['Unnamed: 0']
+    #     df_out.drop(column_to_drop, axis=1, inplace=True)
+        
+    file_name = 'output_data_set_CODAP.csv'
+    df_out.to_csv(file_name, sep=';', encoding='utf-8')
+    
+    df_out.to_pickle('output_data_set_CODAP')
+        
+#####################################################################
+def clean_workdir_all_files(folder):
+
+ 	files = glob.glob(folder+'*')
+ 	for f in files:
+         os.remove(f)
+# _____________________________________________________________________
+def not_clean_workdir_some_files(folder,ext):
+
+    files = glob.glob(folder+'*')
+    for f in files:
+        clean = 0
+        for i in range(len(ext)):
+            if str(ext[i]) in f :
+                clean +=1                
+        if clean ==0 :
+            os.remove(f)
+
+# _____________________________________________________________________
+def clean_workdir_some_files(folder,ext):
+
+    files = glob.glob(folder+'*')
+    for f in files:
+        for i in range(len(ext)):
+            if str(ext[i]) in f :
+                os.remove(f)                
+            
+#####################################################################
+
+def silentremove(filename):
+    # if os.path.exists(filename):
+    try:
+        os.remove(filename)
+    except OSError:
+        pass
+# _____________________________________________________________________
+def program_start():
+    global start_time
+    filename = 'logFile.txt'
+    silentremove(filename)
+        
+    with open(filename, 'w') as f:
+        f.write("By Philippe Amuzuga".center(150,'#'))
+        f.write('\n#\n')
+        f.write('PROGRAM : Jupe Fond CODAP')
+        f.write('\n#\n')
+        f.write("LOG FILE".center(150,'#'))
+        start_time = datetime.datetime.now()
+        f.write("\nStart of the program at {}\n".format(start_time))
+# _____________________________________________________________________
+def program_end():
+    global end_time,start_time
+    filename = "logFile.txt"
+    with open(filename, 'a') as f:
+        end_time = datetime.datetime.now()
+        print("\nProgram duration {}\n".format(end_time-start_time))
+        f.write("\nEnd of the program at {}\n".format(end_time))
+        f.write("\nProgram duration {}\n".format(end_time-start_time))		
+        f.write("By Philippe Amuzuga".center(150,'#'))
+        f.write('\n#\n')
+        f.write('PROGRAM : Jupe Fond CODAP')
+        f.write('\n#\n')
+        f.write("LOG FILE".center(150,'#'))
+
+
+#####################################################################
+
+def loding_parameters():
+    '''
+    Etape 3 : Calcul des valeurs des parametres qui décrivent les sollicitations appliquées au raccordement (la jonction)
+
+    '''
+    
+    global R1, R2, R3, R4, R5, R6, R7
+    
+    R1 = p*D3/(2*eu1)
+    
+    R2 = 2*FZ/(pi*D3*eu1)
+    
+    R3 = 4*MZ/(pi*eu1*D3**2)
+    
+    R4 = c/eu1*(0.5*R2 + R3)
+    
+    if situation == 'autre':
+        R5 = (deltaTK*alphaK - deltaTT*alphaT)*E
+        R6 = (alphaT*gT + alphaK*gK)*E*np.sqrt(0.5*D3*eu1)
+        R7 = (gK + gB)*alphaK*E*np.sqrt(0.5*D3*eu1)
+    elif situation == 'essai':
+        R5 = np.zeros(E.shape)
+        R6 = np.zeros(E.shape)
+        R7 = np.zeros(E.shape)
+    else:
+        error_message = '! situation should be autre or essai !'
+        raise ValueError(error_message)
+
+#####################################################################         
+
+def compute_Cij_coef():   
+    '''
+    
+    Etape 4 : Calcul des valeurs des coefficients Cij
+
+    '''
+    
+    global delta1, delta2, lambda1, lambda2
+    
+    if type_raccordement == 'AB':
+        delta1 = eu3/eu1
+        delta2 = eu2/eu1
+        lambda1 = D1/eu2
+        lambda2 = h4/eu2
+        
+        if type_fond == 'elliptique':
+            error_message = 'En production'
+            raise ValueError(error_message)  
+        elif type_fond == 'torispherique_Korbbogen':
+            error_message = 'En production'
+            raise ValueError(error_message)  
+        elif type_fond =='torispherique_GRC':
+            error_message = 'En production'
+            raise ValueError(error_message)        
+        else:
+            error_message = '! type_fond should be elliptique | torispherique_GRC | torispherique_Korbbogen !'
+            raise ValueError(error_message)  
+        
+    elif type_raccordement =='C':
+        delta1 = eu3/eu1
+        delta2 = np.ones(delta1.shape)
+        lambda1 = D1/eu2 
+        
+        if type_fond == 'elliptique':
+            global C41, C71, C91, C12, C72, C13, C73, C64, C94, C95, C66, C96, C67, C97
+
+            get_raccord_C_fond_elliptique_C21()
+            get_raccord_C_fond_elliptique_C31()
+            C41 = 0.5/delta2
+            get_raccord_C_fond_elliptique_C51()
+            get_raccord_C_fond_elliptique_C61()
+            C71 = 0.5*np.ones(delta1.shape)
+            get_raccord_C_fond_elliptique_C81()
+            C91 = C61
+            C12 = -0.5/delta1
+            get_C22()
+            get_C32()
+            get_C52()
+            get_C62()
+            C72 = -0.5*np.ones(delta1.shape)
+            get_C82()
+            get_C92()
+            C13 = -1.0/delta1
+            C73 = -1.0*np.ones(delta1.shape)
+            get_C24()
+            get_C34()
+            get_C54()
+            C64 = C34
+            get_C84()
+            C94 = C34
+            get_C25()
+            get_C35()
+            get_C55()
+            get_C65()
+            get_C85()
+            C95 = C65
+            get_C26()
+            get_C36()
+            get_C56()
+            C66 = C36
+            get_C86()
+            C96 = C36
+            get_C27()
+            get_C37()
+            get_C57()
+            C67 = C37
+            get_C87()
+            C97 = C37
+        elif type_fond == 'torispherique_Korbbogen':
+            error_message = 'En production'
+            raise ValueError(error_message)             
+        elif type_fond =='torispherique_GRC':
+            error_message = '! Pas de fond torispherique_GRC pour le raccordement type C !'
+            raise ValueError(error_message)     
+        else:
+            error_message = '! type_fond should be elliptique | torispherique_Korbbogen !'
+            raise ValueError(error_message)          
+        
+    else:
+        error_message = '! type_raccordement should be AB or C !'
+        raise ValueError(error_message)
+    
+
+    
+#####################################################################
+
+def get_raccord_C_fond_elliptique_C21():   
+    '''
+    
+    Etape 4 : Raccordement type C et fond elliptique : Calcul des valeurs des coefficients Cij
+
+    '''
+    global C21
+    
+    C21 = list()
+    
+    for i in range(len(lambda1)):
+    
+        x = lambda1[i]
+        
+        if delta1[i] <=0.6 :
+            z1 = 0.6
+            y1 = 14.9631 - 8.3866*log(x) + 1.4621*log(x)**2 - 0.0902*log(x)**3
+            z2 = 1.2
+            y2 = 8.3022 - 4.3673*log(x) + 0.7038*log(x)**2 - 0.0414*log(x)**3
+        
+        elif 0.6 < delta1[i] and delta1[i] <=0.8:
+            z1 = 0.6
+            y1 = 14.9631 - 8.3866*log(x) + 1.4621*log(x)**2 - 0.0902*log(x)**3
+            z2 = 0.8
+            y2 = 10.7904 - 5.7860*log(x) + 0.9459*log(x)**2 - 0.0562*log(x)**3
+            
+        elif 0.8 < delta1[i] and delta1[i] <=1.0:
+            z1 = 0.8
+            y1 = 10.7904 - 5.7860*log(x) + 0.9459*log(x)**2 - 0.0562*log(x)**3
+            z2 = 1.0
+            y2 = 8.2973 - 4.2878*log(x) + 0.6642*log(x)**2 - 0.0382*log(x)**3
+        
+        elif 1.0 < delta1[i] and delta1[i] <=1.2:
+            z1 = 1.0
+            y1 = 8.2973 - 4.2878*log(x) + 0.6642*log(x)**2 - 0.0382*log(x)**3
+            z2 = 1.2
+            y2 = 8.3022 - 4.3673*log(x) + 0.7038*log(x)**2 - 0.0414*log(x)**3
+    
+        elif 1.2 < delta1[i] :
+            z1 = 0.6
+            y1 = 14.9631 - 8.3866*log(x) + 1.4621*log(x)**2 - 0.0902*log(x)**3
+            z2 = 1.2
+            y2 = 8.3022 - 4.3673*log(x) + 0.7038*log(x)**2 - 0.0414*log(x)**3
+            
+        a = (y1 - y2)/(z1 - z2)
+        b = y1 - a*z1
+        
+        C21.append(a*delta1[i] + b)
+        
+        
+    C21 = np.array(C21).reshape(delta1.shape)
+    # print(C21[0])
+    
+# _____________________________________________________________________
+def get_raccord_C_fond_elliptique_C31():   
+    '''
+    
+    Etape 4 : Raccordement type C et fond elliptique : Calcul des valeurs des coefficients Cij
+
+    '''
+    global C31
+    
+    C31 = list()
+    
+    for i in range(len(lambda1)):
+    
+        x = lambda1[i]
+        
+        if delta1[i] <=0.6 :
+            z1 = 0.6
+            y1 = 4.9318 - 2.8033*log(x) + 0.4926*log(x)**2 - 0.0302*log(x)**3
+            z2 = 1.2
+            y2 = 3.6066 - 1.9739*log(x) + 0.3288*log(x)**2 - 0.0191*log(x)**3
+        
+        elif 0.6 < delta1[i] and delta1[i] <=0.8:
+            z1 = 0.6
+            y1 = 4.9318 - 2.8033*log(x) + 0.4926*log(x)**2 - 0.0302*log(x)**3
+            z2 = 0.8
+            y2 = 3.3552 - 1.8295*log(x) + 0.2989*log(x)**2 - 0.0174*log(x)**3
+            
+        elif 0.8 < delta1[i] and delta1[i] <=1.0:
+            z1 = 0.8
+            y1 = 3.3552 - 1.8295*log(x) + 0.2989*log(x)**2 - 0.0174*log(x)**3
+            z2 = 1.0
+            y2 = 3.5759 - 1.9412*log(x) + 0.3171*log(x)**2 - 0.0181*log(x)**3
+        
+        elif 1.0 < delta1[i] and delta1[i] <=1.2:
+            z1 = 1.0
+            y1 = 3.5759 - 1.9412*log(x) + 0.3171*log(x)**2 - 0.0181*log(x)**3
+            z2 = 1.2
+            y2 = 3.6066 - 1.9739*log(x) + 0.3288*log(x)**2 - 0.0191*log(x)**3
+    
+        elif 1.2 < delta1[i] :
+            z1 = 0.6
+            y1 = 4.9318 - 2.8033*log(x) + 0.4926*log(x)**2 - 0.0302*log(x)**3
+            z2 = 1.2
+            y2 = 3.6066 - 1.9739*log(x) + 0.3288*log(x)**2 - 0.0191*log(x)**3
+            
+        a = (y1 - y2)/(z1 - z2)
+        b = y1 - a*z1
+        
+        C31.append(a*delta1[i] + b)
+        
+        
+    C31 = np.array(C31).reshape(delta1.shape)
+    
+# _____________________________________________________________________
+def get_raccord_C_fond_elliptique_C51():
+    '''
+    
+    Etape 4 : Raccordement type C et fond elliptique : Calcul des valeurs des coefficients Cij
+
+    '''
+    global C51
+    
+    C51 = list()
+    
+    for i in range(len(lambda1)):
+    
+        x = lambda1[i]
+        
+        if delta1[i] <=0.6 :
+            z1 = 0.6
+            y1 = -7.1133 + 3.0022*log(x) - 0.5337*log(x)**2 + 0.0353*log(x)**3
+            z2 = 1.2
+            y2 = -13.2599 + 6.0635*log(x) - 0.9953*log(x)**2 + 0.0593*log(x)**3
+        
+        elif 0.6 < delta1[i] and delta1[i] <=0.8:
+            z1 = 0.6
+            y1 = -7.1133 + 3.0022*log(x) - 0.5337*log(x)**2 + 0.0353*log(x)**3
+            z2 = 0.8
+            y2 = -7.3420 + 2.8261*log(x) - 0.4294*log(x)**2 + 0.0251*log(x)**3
+            
+        elif 0.8 < delta1[i] and delta1[i] <=1.0:
+            z1 = 0.8
+            y1 = -7.3420 + 2.8261*log(x) - 0.4294*log(x)**2 + 0.0251*log(x)**3
+            z2 = 1.0
+            y2 = -10.8605 + 4.8118*log(x) - 0.7923*log(x)**2 + 0.0481*log(x)**3
+        
+        elif 1.0 < delta1[i] and delta1[i] <=1.2:
+            z1 = 1.0
+            y1 = -10.8605 + 4.8118*log(x) - 0.7923*log(x)**2 + 0.0481*log(x)**3
+            z2 = 1.2
+            y2 = -13.2599 + 6.0635*log(x) - 0.9953*log(x)**2 + 0.0593*log(x)**3
+    
+        elif 1.2 < delta1[i] :
+            z1 = 0.6
+            y1 = -7.1133 + 3.0022*log(x) - 0.5337*log(x)**2 + 0.0353*log(x)**3
+            z2 = 1.2
+            y2 = -13.2599 + 6.0635*log(x) - 0.9953*log(x)**2 + 0.0593*log(x)**3
+            
+        a = (y1 - y2)/(z1 - z2)
+        b = y1 - a*z1
+        
+        C51.append(a*delta1[i] + b)
+        
+        
+    C51 = np.array(C51).reshape(delta1.shape)
+# _____________________________________________________________________    
+def get_raccord_C_fond_elliptique_C61():
+    '''
+    
+    Etape 4 : Raccordement type C et fond elliptique : Calcul des valeurs des coefficients Cij
+
+    '''
+    global C61
+    
+    C61 = list()
+    
+    for i in range(len(lambda1)):
+    
+        x = lambda1[i]
+        
+        if delta1[i] <=0.6 :
+            z1 = 0.6
+            y1 = 4.2268 - 2.2354*log(x) + 0.3695*log(x)**2 - 0.0215*log(x)**3
+            z2 = 1.2
+            y2 = 3.1688 - 1.6253*log(x) + 0.2604*log(x)**2 - 0.0147*log(x)**3
+        
+        elif 0.6 < delta1[i] and delta1[i] <=0.8:
+            z1 = 0.6
+            y1 = 4.2268 - 2.2354*log(x) + 0.3695*log(x)**2 - 0.0215*log(x)**3
+            z2 = 0.8
+            y2 = 3.0448 - 1.5407*log(x) + 0.2398*log(x)**2 - 0.0135*log(x)**3
+            
+        elif 0.8 < delta1[i] and delta1[i] <=1.0:
+            z1 = 0.8
+            y1 = 3.0448 - 1.5407*log(x) + 0.2398*log(x)**2 - 0.0135*log(x)**3
+            z2 = 1.0
+            y2 = 2.8847 - 1.3769*log(x) + 0.1936*log(x)**2 - 0.0093*log(x)**3
+        
+        elif 1.0 < delta1[i] and delta1[i] <=1.2:
+            z1 = 1.0
+            y1 = 2.8847 - 1.3769*log(x) + 0.1936*log(x)**2 - 0.0093*log(x)**3
+            z2 = 1.2
+            y2 = 3.1688 - 1.6253*log(x) + 0.2604*log(x)**2 - 0.0147*log(x)**3
+    
+        elif 1.2 < delta1[i] :
+            z1 = 0.6
+            y1 = 4.2268 - 2.2354*log(x) + 0.3695*log(x)**2 - 0.0215*log(x)**3
+            z2 = 1.2
+            y2 = 3.1688 - 1.6253*log(x) + 0.2604*log(x)**2 - 0.0147*log(x)**3
+            
+        a = (y1 - y2)/(z1 - z2)
+        b = y1 - a*z1
+        
+        C61.append(a*delta1[i] + b)
+        
+        
+    C61 = np.array(C61).reshape(delta1.shape)
+# _____________________________________________________________________    
+def get_raccord_C_fond_elliptique_C81():
+    '''
+    
+    Etape 4 : Raccordement type C et fond elliptique : Calcul des valeurs des coefficients Cij
+
+    '''
+    global C81
+    
+    C81 = list()
+    
+    for i in range(len(lambda1)):
+    
+        x = lambda1[i]
+        
+        if delta1[i] <=0.6 :
+            z1 = 0.6
+            y1 = -4.9148 + 2.0418*log(x) - 0.4414*log(x)**2 + 0.0328*log(x)**3
+            z2 = 1.2
+            y2 = -0.1134 - 0.7557*log(x) + 0.0785*log(x)**2 - 0.0009*log(x)**3
+        
+        elif 0.6 < delta1[i] and delta1[i] <=0.8:
+            z1 = 0.6
+            y1 = -4.9148 + 2.0418*log(x) - 0.4414*log(x)**2 + 0.0328*log(x)**3
+            z2 = 0.8
+            y2 = -1.4502 - 0.1602*log(x) + 0.0136*log(x)**2 + 0.0011*log(x)**3
+            
+        elif 0.8 < delta1[i] and delta1[i] <=1.0:
+            z1 = 0.8
+            y1 = -1.4502 - 0.1602*log(x) + 0.0136*log(x)**2 + 0.0011*log(x)**3
+            z2 = 1.0
+            y2 = -1.2847 - 0.1698*log(x) - 0.0081*log(x)**2 + 0.0034*log(x)**3
+        
+        elif 1.0 < delta1[i] and delta1[i] <=1.2:
+            z1 = 1.0
+            y1 = -1.2847 - 0.1698*log(x) - 0.0081*log(x)**2 + 0.0034*log(x)**3
+            z2 = 1.2
+            y2 = -0.1134 - 0.7557*log(x) + 0.0785*log(x)**2 - 0.0009*log(x)**3
+    
+        elif 1.2 < delta1[i] :
+            z1 = 0.6
+            y1 = -4.9148 + 2.0418*log(x) - 0.4414*log(x)**2 + 0.0328*log(x)**3
+            z2 = 1.2
+            y2 = -0.1134 - 0.7557*log(x) + 0.0785*log(x)**2 - 0.0009*log(x)**3
+            
+        a = (y1 - y2)/(z1 - z2)
+        b = y1 - a*z1
+        
+        C81.append(a*delta1[i] + b)
+        
+        
+    C81 = np.array(C81).reshape(delta1.shape)
+# _____________________________________________________________________    
+def get_C22():
+    '''
+    
+    Etape 4 : Calcul des valeurs des coefficients C22
+
+    '''
+    global C22
+    
+    C22 = list()
+    
+    for i in range(len(delta1)):
+    
+        x = delta1[i]
+        
+        if delta2[i] <=1.0 :
+            z1 = 1.0
+            y1 = -1.358 + 3.037*x - 2.663*x**2 + 0.839*x**3
+            z2 = 1.4
+            y2 = -1.374 + 2.941*x - 2.549*x**2 + 0.8*x**3
+        
+        elif 1.0 < delta2[i] and delta2[i] <=1.1:
+            z1 = 1.0
+            y1 = -1.358 + 3.037*x - 2.663*x**2 + 0.839*x**3
+            z2 = 1.1
+            y2 = -1.326 + 2.877*x - 2.493*x**2 + 0.784*x**3
+            
+        elif 1.1 < delta2[i] and delta2[i] <=1.2:
+            z1 = 1.1
+            y1 = -1.326 + 2.877*x - 2.493*x**2 + 0.784*x**3
+            z2 = 1.2
+            y2 = -1.300 + 2.711*x - 2.266*x**2 + 0.689*x**3
+        
+        elif 1.2 < delta2[i] and delta2[i] <=1.4:
+            z1 = 1.2
+            y1 = -1.300 + 2.711*x - 2.266*x**2 + 0.689*x**3
+            z2 = 1.4
+            y2 = -1.374 + 2.941*x - 2.549*x**2 + 0.8*x**3
+    
+        elif 1.4 < delta2[i] :
+            z1 = 1.0
+            y1 = -1.358 + 3.037*x - 2.663*x**2 + 0.839*x**3
+            z2 = 1.4
+            y2 = -1.374 + 2.941*x - 2.549*x**2 + 0.8*x**3
+            
+        a = (y1 - y2)/(z1 - z2)
+        b = y1 - a*z1
+        
+        C22.append(a*delta2[i] + b)
+        
+        
+    C22 = np.array(C22).reshape(delta2.shape)
+# _____________________________________________________________________    
+def get_C32():
+    '''
+    
+    Etape 4 : Calcul des valeurs des coefficients C32
+
+    '''
+    global C32
+    
+    C32 = list()
+    
+    for i in range(len(delta1)):
+    
+        x = delta1[i]
+        
+        if delta2[i] <=1.0 :
+            z1 = 1.0
+            y1 = -0.667 + 1.444*x - 1.136*x**2 + 0.316*x**3
+            z2 = 1.4
+            y2 = -0.680 + 1.439*x - 1.133*x**2 + 0.318*x**3
+        
+        elif 1.0 < delta2[i] and delta2[i] <=1.2:
+            z1 = 1.0
+            y1 = -0.667 + 1.444*x - 1.136*x**2 + 0.316*x**3
+            z2 = 1.2
+            y2 = -0.666 + 1.423*x - 1.121*x**2 + 0.315*x**3
+        
+        elif 1.2 < delta2[i] and delta2[i] <=1.4:
+            z1 = 1.2
+            y1 = -0.666 + 1.423*x - 1.121*x**2 + 0.315*x**3
+            z2 = 1.4
+            y2 = -0.680 + 1.439*x - 1.133*x**2 + 0.318*x**3
+    
+        elif 1.4 < delta2[i] :
+            z1 = 1.0
+            y1 = -0.667 + 1.444*x - 1.136*x**2 + 0.316*x**3
+            z2 = 1.4
+            y2 = -0.680 + 1.439*x - 1.133*x**2 + 0.318*x**3
+            
+        a = (y1 - y2)/(z1 - z2)
+        b = y1 - a*z1
+        
+        C32.append(a*delta2[i] + b)
+        
+        
+    C32 = np.array(C32).reshape(delta2.shape)
+# _____________________________________________________________________    
+def get_C52():
+    '''
+    
+    Etape 4 : Calcul des valeurs des coefficients C52
+
+    '''
+    global C52
+    
+    C52 = list()
+    
+    for i in range(len(delta1)):
+    
+        x = delta1[i]
+        
+        if delta2[i] <=1.0 :
+            z1 = 1.0
+            y1 = 0.037 + 0.256*x - 0.227*x**2 + 0.063*x**3
+            z2 = 1.4
+            y2 = 0.026 + 0.074*x - 0.017*x**2 - 0.005*x**3
+        
+        elif 1.0 < delta2[i] and delta2[i] <=1.1:
+            z1 = 1.0
+            y1 = 0.037 + 0.256*x - 0.227*x**2 + 0.063*x**3
+            z2 = 1.1
+            y2 = 0.044 + 0.157*x - 0.111*x**2 + 0.024*x**3
+            
+        elif 1.1 < delta2[i] and delta2[i] <=1.2:
+            z1 = 1.1
+            y1 = 0.044 + 0.157*x - 0.111*x**2 + 0.024*x**3
+            z2 = 1.2
+            y2 = 0.022 + 0.180*x - 0.137*x**2 + 0.035*x**3
+            
+        elif 1.2 < delta2[i] and delta2[i] <=1.3:
+            z1 = 1.2
+            y1 = 0.022 + 0.180*x - 0.137*x**2 + 0.035*x**3
+            z2 = 1.3
+            y2 = 0.025 + 0.116*x - 0.064*x**2 + 0.011*x**3
+            
+        elif 1.3 < delta2[i] and delta2[i] <=1.4:
+            z1 = 1.3
+            y1 = 0.025 + 0.116*x - 0.064*x**2 + 0.011*x**3
+            z2 = 1.4
+            y2 = 0.026 + 0.074*x - 0.017*x**2 - 0.005*x**3
+    
+        elif 1.4 < delta2[i] :
+            z1 = 1.0
+            y1 = 0.037 + 0.256*x - 0.227*x**2 + 0.063*x**3
+            z2 = 1.4
+            y2 = 0.026 + 0.074*x - 0.017*x**2 - 0.005*x**3
+            
+        a = (y1 - y2)/(z1 - z2)
+        b = y1 - a*z1
+        
+        C52.append(a*delta2[i] + b)
+        
+        
+    C52 = np.array(C52).reshape(delta2.shape)
+# _____________________________________________________________________    
+def get_C62():
+    '''
+    
+    Etape 4 : Calcul des valeurs des coefficients C62
+
+    '''
+    global C62
+    
+    C62 = list()
+    
+    for i in range(len(delta1)):
+    
+        x = delta1[i]
+        
+        if delta2[i] <=1.0 :
+            z1 = 1.0
+            y1 = 0.111 + 0.007*x - 0.012*x**2
+            z2 = 1.4
+            y2 = 0.094 + 0.009*x - 0.010*x**2
+        
+        elif 1.0 < delta2[i] and delta2[i] <=1.1:
+            z1 = 1.0
+            y1 = 0.111 + 0.007*x - 0.012*x**2
+            z2 = 1.1
+            y2 = 0.105 + 0.012*x - 0.014*x**2
+            
+        elif 1.1 < delta2[i] and delta2[i] <=1.2:
+            z1 = 1.1
+            y1 = 0.105 + 0.012*x - 0.014*x**2
+            z2 = 1.2
+            y2 = 0.100 + 0.013*x - 0.014*x**2
+            
+        elif 1.2 < delta2[i] and delta2[i] <=1.3:
+            z1 = 1.2
+            y1 = 0.100 + 0.013*x - 0.014*x**2
+            z2 = 1.3
+            y2 = 0.097 + 0.010*x - 0.011*x**2
+            
+        elif 1.3 < delta2[i] and delta2[i] <=1.4:
+            z1 = 1.3
+            y1 = 0.097 + 0.010*x - 0.011*x**2
+            z2 = 1.4
+            y2 = 0.094 + 0.009*x - 0.010*x**2
+    
+        elif 1.4 < delta2[i] :
+            z1 = 1.0
+            y1 = 0.111 + 0.007*x - 0.012*x**2
+            z2 = 1.4
+            y2 = 0.094 + 0.009*x - 0.010*x**2
+            
+        a = (y1 - y2)/(z1 - z2)
+        b = y1 - a*z1
+        
+        C62.append(a*delta2[i] + b)
+        
+        
+    C62 = np.array(C62).reshape(delta2.shape)
+# _____________________________________________________________________    
+def get_C82():
+    '''
+    
+    Etape 4 : Calcul des valeurs des coefficients C82
+
+    '''
+    global C82
+    
+    C82 = list()
+    
+    for i in range(len(delta1)):
+    
+        x = delta1[i]
+        
+        if delta2[i] <=1.0 :
+            z1 = 1.0
+            y1 = 0.049 - 0.070*x + 0.005*x**2
+            z2 = 1.4
+            y2 = 0.028 - 0.048*x - 0.006*x**2
+        
+        elif 1.0 < delta2[i] and delta2[i] <=1.1:
+            z1 = 1.0
+            y1 = 0.049 - 0.070*x + 0.005*x**2
+            z2 = 1.1
+            y2 = 0.046 - 0.064*x + 0.001*x**2
+            
+        elif 1.1 < delta2[i] and delta2[i] <=1.2:
+            z1 = 1.1
+            y1 = 0.046 - 0.064*x + 0.001*x**2
+            z2 = 1.2
+            y2 = 0.040 - 0.058*x - 0.002*x**2
+            
+        elif 1.2 < delta2[i] and delta2[i] <=1.3:
+            z1 = 1.2
+            y1 = 0.040 - 0.058*x - 0.002*x**2
+            z2 = 1.3
+            y2 = 0.037 - 0.057*x - 0.002*x**2
+            
+        elif 1.3 < delta2[i] and delta2[i] <=1.4:
+            z1 = 1.3
+            y1 = 0.037 - 0.057*x - 0.002*x**2
+            z2 = 1.4
+            y2 = 0.028 - 0.048*x - 0.006*x**2
+    
+        elif 1.4 < delta2[i] :
+            z1 = 1.0
+            y1 = 0.049 - 0.070*x + 0.005*x**2
+            z2 = 1.4
+            y2 = 0.028 - 0.048*x - 0.006*x**2
+            
+        a = (y1 - y2)/(z1 - z2)
+        b = y1 - a*z1
+        
+        C82.append(a*delta2[i] + b)
+        
+        
+    C82 = np.array(C82).reshape(delta2.shape)
+# _____________________________________________________________________    
+def get_C92():
+    '''
+    
+    Etape 4 : Calcul des valeurs des coefficients C92
+
+    '''
+    global C92
+    
+    C92 = list()
+    
+    for i in range(len(delta1)):
+    
+        x = delta1[i]
+        
+        if delta2[i] <=1.0 :
+            z1 = 1.0
+            y1 = 0.039 + 0.007*x - 0.012*x**2
+            z2 = 1.4
+            y2 = -0.056 + 0.009*x - 0.010*x**2
+        
+        elif 1.0 < delta2[i] and delta2[i] <=1.1:
+            z1 = 1.0
+            y1 = 0.039 + 0.007*x - 0.012*x**2
+            z2 = 1.1
+            y2 = 0.045 + 0.011*x - 0.014*x**2
+            
+        elif 1.1 < delta2[i] and delta2[i] <=1.2:
+            z1 = 1.1
+            y1 = 0.045 + 0.011*x - 0.014*x**2
+            z2 = 1.2
+            y2 = 0.048 + 0.009*x - 0.011*x**2
+            
+        elif 1.2 < delta2[i] and delta2[i] <=1.3:
+            z1 = 1.2
+            y1 = 0.048 + 0.009*x - 0.011*x**2
+            z2 = 1.3
+            y2 = -0.049 + 0.002*x - 0.007*x**2
+            
+        elif 1.3 < delta2[i] and delta2[i] <=1.4:
+            z1 = 1.3
+            y1 = -0.049 + 0.002*x - 0.007*x**2
+            z2 = 1.4
+            y2 = -0.056 + 0.009*x - 0.010*x**2
+    
+        elif 1.4 < delta2[i] :
+            z1 = 1.0
+            y1 = 0.039 + 0.007*x - 0.012*x**2
+            z2 = 1.4
+            y2 = -0.056 + 0.009*x - 0.010*x**2
+            
+        a = (y1 - y2)/(z1 - z2)
+        b = y1 - a*z1
+        
+        C92.append(a*delta2[i] + b)
+        
+        
+    C92 = np.array(C92).reshape(delta2.shape)
+# _____________________________________________________________________    
+def get_C24():
+    '''
+    
+    Etape 4 : Calcul des valeurs des coefficients C24
+
+    '''
+    global C24
+    
+    C24 = list()
+    
+    for i in range(len(delta1)):
+    
+        x = delta1[i]
+        
+        if delta2[i] <=1.0 :
+            z1 = 1.0
+            y1 = 0.816 + 3.541*x - 3.600*x**2 + 0.968*x**3
+            z2 = 1.4
+            y2 = 0.147 + 2.333*x - 1.668*x**2 + 0.345*x**3
+        
+        elif 1.0 < delta2[i] and delta2[i] <=1.1:
+            z1 = 1.0
+            y1 = 0.816 + 3.541*x - 3.600*x**2 + 0.968*x**3
+            z2 = 1.1
+            y2 = 0.481 + 3.493*x - 3.209*x**2 + 0.833*x**3
+            
+        elif 1.1 < delta2[i] and delta2[i] <=1.2:
+            z1 = 1.1
+            y1 = 0.481 + 3.493*x - 3.209*x**2 + 0.833*x**3
+            z2 = 1.2
+            y2 = 0.381 + 2.888*x - 2.361*x**2 + 0.530*x**3
+            
+        elif 1.2 < delta2[i] and delta2[i] <=1.3:
+            z1 = 1.2
+            y1 = 0.381 + 2.888*x - 2.361*x**2 + 0.530*x**3
+            z2 = 1.3
+            y2 = 0.183 + 2.794*x - 2.171*x**2 + 0.488*x**3
+            
+        elif 1.3 < delta2[i] and delta2[i] <=1.4:
+            z1 = 1.3
+            y1 = 0.183 + 2.794*x - 2.171*x**2 + 0.488*x**3
+            z2 = 1.4
+            y2 = 0.147 + 2.333*x - 1.668*x**2 + 0.345*x**3
+    
+        elif 1.4 < delta2[i] :
+            z1 = 1.0
+            y1 = 0.816 + 3.541*x - 3.600*x**2 + 0.968*x**3
+            z2 = 1.4
+            y2 = 0.147 + 2.333*x - 1.668*x**2 + 0.345*x**3
+            
+        a = (y1 - y2)/(z1 - z2)
+        b = y1 - a*z1
+        
+        C24.append(a*delta2[i] + b)
+        
+        
+    C24 = np.array(C24).reshape(delta2.shape)
+# _____________________________________________________________________    
+def get_C34():
+    '''
+    
+    Etape 4 : Calcul des valeurs des coefficients C34
+
+    '''
+    global C34
+    
+    C34 = list()
+    
+    for i in range(len(delta1)):
+    
+        x = delta1[i]
+        
+        if delta2[i] <=1.0 :
+            z1 = 1.0
+            y1 = 0.1052 - 0.4375*x + 0.1390*x**2
+            z2 = 1.4
+            y2 = -0.1492 - 0.1309*x + 0.047*x**2
+        
+        elif 1.0 < delta2[i] and delta2[i] <=1.1:
+            z1 = 1.0
+            y1 = 0.1052 - 0.4375*x + 0.1390*x**2
+            z2 = 1.1
+            y2 = 0.00825 - 0.3168*x + 0.10065*x**2
+            
+        elif 1.1 < delta2[i] and delta2[i] <=1.2:
+            z1 = 1.1
+            y1 = 0.00825 - 0.3168*x + 0.10065*x**2
+            z2 = 1.2
+            y2 = -0.0597 - 0.2383*x + 0.0784*x**2
+            
+        elif 1.2 < delta2[i] and delta2[i] <=1.3:
+            z1 = 1.2
+            y1 = -0.0597 - 0.2383*x + 0.0784*x**2
+            z2 = 1.3
+            y2 = -0.1185 - 0.1565*x + 0.0483*x**2
+            
+        elif 1.3 < delta2[i] and delta2[i] <=1.4:
+            z1 = 1.3
+            y1 = -0.1185 - 0.1565*x + 0.0483*x**2
+            z2 = 1.4
+            y2 = -0.1492 - 0.1309*x + 0.047*x**2
+    
+        elif 1.4 < delta2[i] :
+            z1 = 1.0
+            y1 = 0.1052 - 0.4375*x + 0.1390*x**2
+            z2 = 1.4
+            y2 = -0.1492 - 0.1309*x + 0.047*x**2
+            
+        a = (y1 - y2)/(z1 - z2)
+        b = y1 - a*z1
+        
+        C34.append(a*delta2[i] + b)
+        
+        
+    C34 = np.array(C34).reshape(delta2.shape)
+# _____________________________________________________________________    
+def get_C54():
+    '''
+    
+    Etape 4 : Calcul des valeurs des coefficients C54
+
+    '''
+    global C54
+    
+    C54 = list()
+    
+    for i in range(len(delta1)):
+    
+        x = delta1[i]
+        
+        if delta2[i] <=1.0 :
+            z1 = 1.0
+            y1 = 3.494 - 1.742*x + 0.021*x**2
+            z2 = 1.4
+            y2 = 2.076 - 0.426*x - 0.207*x**2
+        
+        elif 1.0 < delta2[i] and delta2[i] <=1.1:
+            z1 = 1.0
+            y1 = 3.494 - 1.742*x + 0.021*x**2
+            z2 = 1.1
+            y2 = 3.108 - 1.370*x - 0.037*x**2
+            
+        elif 1.1 < delta2[i] and delta2[i] <=1.2:
+            z1 = 1.1
+            y1 = 3.108 - 1.370*x - 0.037*x**2
+            z2 = 1.2
+            y2 = 2.684 - 0.912*x - 0.158*x**2
+            
+        elif 1.2 < delta2[i] and delta2[i] <=1.3:
+            z1 = 1.2
+            y1 = 2.684 - 0.912*x - 0.158*x**2
+            z2 = 1.3
+            y2 = 2.353 - 0.605*x - 0.210*x**2
+            
+        elif 1.3 < delta2[i] and delta2[i] <=1.4:
+            z1 = 1.3
+            y1 = 2.353 - 0.605*x - 0.210*x**2
+            z2 = 1.4
+            y2 = 2.076 - 0.426*x - 0.207*x**2
+    
+        elif 1.4 < delta2[i] :
+            z1 = 1.0
+            y1 = 3.494 - 1.742*x + 0.021*x**2
+            z2 = 1.4
+            y2 = 2.076 - 0.426*x - 0.207*x**2
+            
+        a = (y1 - y2)/(z1 - z2)
+        b = y1 - a*z1
+        
+        C54.append(a*delta2[i] + b)
+        
+        
+    C54 = np.array(C54).reshape(delta2.shape)    
+# _____________________________________________________________________
+def get_C84():
+    '''
+    
+    Etape 4 : Calcul des valeurs des coefficients C84
+
+    '''
+    global C84
+    
+    C84 = list()
+    
+    for i in range(len(delta1)):
+    
+        x = delta1[i]
+        
+        if delta2[i] <=1.0 :
+            z1 = 1.0
+            y1 = -3.111 + 0.174*x + 0.459*x**2
+            z2 = 1.4
+            y2 = -2.234 - 0.142*x + 0.367*x**2
+        
+        elif 1.0 < delta2[i] and delta2[i] <=1.1:
+            z1 = 1.0
+            y1 = -3.111 + 0.174*x + 0.459*x**2
+            z2 = 1.1
+            y2 = -2.920 + 0.198*x + 0.367*x**2
+            
+        elif 1.1 < delta2[i] and delta2[i] <=1.2:
+            z1 = 1.1
+            y1 = -2.920 + 0.198*x + 0.367*x**2
+            z2 = 1.2
+            y2 = -2.602 - 0.092*x + 0.456*x**2
+            
+        elif 1.2 < delta2[i] and delta2[i] <=1.3:
+            z1 = 1.2
+            y1 = -2.602 - 0.092*x + 0.456*x**2
+            z2 = 1.3
+            y2 = -2.434 - 0.069*x + 0.381*x**2
+            
+        elif 1.3 < delta2[i] and delta2[i] <=1.4:
+            z1 = 1.3
+            y1 = -2.434 - 0.069*x + 0.381*x**2
+            z2 = 1.4
+            y2 = -2.234 - 0.142*x + 0.367*x**2
+    
+        elif 1.4 < delta2[i] :
+            z1 = 1.0
+            y1 = -3.111 + 0.174*x + 0.459*x**2
+            z2 = 1.4
+            y2 = -2.234 - 0.142*x + 0.367*x**2
+            
+        a = (y1 - y2)/(z1 - z2)
+        b = y1 - a*z1
+        
+        C84.append(a*delta2[i] + b)
+        
+        
+    C84 = np.array(C84).reshape(delta2.shape)    
+# _____________________________________________________________________
+def get_C25():
+    '''
+    
+    Etape 4 : Calcul des valeurs des coefficients C25
+
+    '''
+    global C25
+    
+    C25 = list()
+    
+    for i in range(len(delta1)):
+    
+        x = delta1[i]
+        
+        if delta2[i] <=1.0 :
+            z1 = 1.0
+            y1 = 2.142 - 1.580*x + 0.293*x**2
+            z2 = 1.4
+            y2 = 2.042 - 0.951*x + 0.067*x**2
+        
+        elif 1.0 < delta2[i] and delta2[i] <=1.1:
+            z1 = 1.0
+            y1 = 2.142 - 1.580*x + 0.293*x**2
+            z2 = 1.1
+            y2 = 2.111 - 1.365*x + 0.198*x**2
+            
+        elif 1.1 < delta2[i] and delta2[i] <=1.2:
+            z1 = 1.1
+            y1 = 2.111 - 1.365*x + 0.198*x**2
+            z2 = 1.2
+            y2 = 2.059 - 1.141*x + 0.106*x**2
+            
+        elif 1.2 < delta2[i] and delta2[i] <=1.3:
+            z1 = 1.2
+            y1 = 2.059 - 1.141*x + 0.106*x**2
+            z2 = 1.3
+            y2 = 2.069 - 1.075*x + 0.097*x**2
+            
+        elif 1.3 < delta2[i] and delta2[i] <=1.4:
+            z1 = 1.3
+            y1 = 2.069 - 1.075*x + 0.097*x**2
+            z2 = 1.4
+            y2 = 2.042 - 0.951*x + 0.067*x**2
+    
+        elif 1.4 < delta2[i] :
+            z1 = 1.0
+            y1 = 2.142 - 1.580*x + 0.293*x**2
+            z2 = 1.4
+            y2 = 2.042 - 0.951*x + 0.067*x**2
+            
+        a = (y1 - y2)/(z1 - z2)
+        b = y1 - a*z1
+        
+        C25.append(a*delta2[i] + b)
+        
+        
+    C25 = np.array(C25).reshape(delta2.shape)      
+# _____________________________________________________________________
+def get_C35():
+    '''
+    
+    Etape 4 : Calcul des valeurs des coefficients C35
+
+    '''
+    global C35
+    
+    C35 = list()
+    
+    for i in range(len(delta1)):
+    
+        x = delta1[i]
+        
+        if delta2[i] <=1.0 :
+            z1 = 1.0
+            y1 = 1.06 - 0.461*x + 0.106*x**2
+            z2 = 1.4
+            y2 = 1.024 - 0.296*x + 0.0327*x**2
+        
+        elif 1.0 < delta2[i] and delta2[i] <=1.1:
+            z1 = 1.0
+            y1 = 1.06 - 0.461*x + 0.106*x**2
+            z2 = 1.1
+            y2 = 1.062 - 0.439*x + 0.098*x**2
+            
+        elif 1.1 < delta2[i] and delta2[i] <=1.2:
+            z1 = 1.1
+            y1 = 1.062 - 0.439*x + 0.098*x**2
+            z2 = 1.2
+            y2 = 1.059 - 0.409*x + 0.084*x**2
+            
+        elif 1.2 < delta2[i] and delta2[i] <=1.3:
+            z1 = 1.2
+            y1 = 1.059 - 0.409*x + 0.084*x**2
+            z2 = 1.3
+            y2 = 1.048 - 0.365*x + 0.065*x**2
+            
+        elif 1.3 < delta2[i] and delta2[i] <=1.4:
+            z1 = 1.3
+            y1 = 1.048 - 0.365*x + 0.065*x**2
+            z2 = 1.4
+            y2 = 1.024 - 0.296*x + 0.0327*x**2
+    
+        elif 1.4 < delta2[i] :
+            z1 = 1.0
+            y1 = 1.06 - 0.461*x + 0.106*x**2
+            z2 = 1.4
+            y2 = 1.024 - 0.296*x + 0.0327*x**2
+            
+        a = (y1 - y2)/(z1 - z2)
+        b = y1 - a*z1
+        
+        C35.append(a*delta2[i] + b)
+        
+        
+    C35 = np.array(C35).reshape(delta2.shape)    
+# _____________________________________________________________________
+def get_C55():
+    '''
+    
+    Etape 4 : Calcul des valeurs des coefficients C55
+
+    '''
+    global C55
+    
+    C55 = list()
+    
+    for i in range(len(delta1)):
+    
+        x = delta1[i]
+        
+        if delta2[i] <=1.0 :
+            z1 = 1.0
+            y1 = 0.290 - 1.722*x + 0.470*x**2
+            z2 = 1.4
+            y2 = 0.224 - 1.068*x + 0.147*x**2
+        
+        elif 1.0 < delta2[i] and delta2[i] <=1.1:
+            z1 = 1.0
+            y1 = 0.290 - 1.722*x + 0.470*x**2
+            z2 = 1.1
+            y2 = 0.338 - 1.653*x + 0.423*x**2
+            
+        elif 1.1 < delta2[i] and delta2[i] <=1.2:
+            z1 = 1.1
+            y1 = 0.338 - 1.653*x + 0.423*x**2
+            z2 = 1.2
+            y2 = 0.290 - 1.412*x + 0.303*x**2
+            
+        elif 1.2 < delta2[i] and delta2[i] <=1.3:
+            z1 = 1.2
+            y1 = 0.290 - 1.412*x + 0.303*x**2
+            z2 = 1.3
+            y2 = 0.302 - 1.338*x + 0.275*x**2
+            
+        elif 1.3 < delta2[i] and delta2[i] <=1.4:
+            z1 = 1.3
+            y1 = 0.302 - 1.338*x + 0.275*x**2
+            z2 = 1.4
+            y2 = 0.224 - 1.068*x + 0.147*x**2
+    
+        elif 1.4 < delta2[i] :
+            z1 = 1.0
+            y1 = 0.290 - 1.722*x + 0.470*x**2
+            z2 = 1.4
+            y2 = 0.224 - 1.068*x + 0.147*x**2
+            
+        a = (y1 - y2)/(z1 - z2)
+        b = y1 - a*z1
+        
+        C55.append(a*delta2[i] + b)
+        
+        
+    C55 = np.array(C55).reshape(delta2.shape)    
+# _____________________________________________________________________
+def get_C65():
+    '''
+    
+    Etape 4 : Calcul des valeurs des coefficients C65
+
+    '''
+    global C65
+    
+    C65 = list()
+    
+    for i in range(len(delta1)):
+    
+        x = delta1[i]
+        
+        if delta2[i] <=1.0 :
+            z1 = 1.0
+            y1 = 0.035 - 0.407*x + 0.079*x**2
+            z2 = 1.4
+            y2 = 0.062 - 0.375*x + 0.071*x**2
+        
+        elif 1.0 < delta2[i] and delta2[i] <=1.1:
+            z1 = 1.0
+            y1 = 0.035 - 0.407*x + 0.079*x**2
+            z2 = 1.1
+            y2 = 0.057 - 0.445*x + 0.108*x**2
+            
+        elif 1.1 < delta2[i] and delta2[i] <=1.2:
+            z1 = 1.1
+            y1 = 0.057 - 0.445*x + 0.108*x**2
+            z2 = 1.2
+            y2 = 0.024 - 0.327*x + 0.041*x**2
+            
+        elif 1.2 < delta2[i] and delta2[i] <=1.3:
+            z1 = 1.2
+            y1 = 0.024 - 0.327*x + 0.041*x**2
+            z2 = 1.3
+            y2 = 0.052 - 0.375*x + 0.071*x**2
+            
+        elif 1.3 < delta2[i] and delta2[i] <=1.4:
+            z1 = 1.3
+            y1 = 0.052 - 0.375*x + 0.071*x**2
+            z2 = 1.4
+            y2 = 0.062 - 0.375*x + 0.071*x**2
+    
+        elif 1.4 < delta2[i] :
+            z1 = 1.0
+            y1 = 0.035 - 0.407*x + 0.079*x**2
+            z2 = 1.4
+            y2 = 0.062 - 0.375*x + 0.071*x**2
+            
+        a = (y1 - y2)/(z1 - z2)
+        b = y1 - a*z1
+        
+        C65.append(a*delta2[i] + b)
+        
+        
+    C65 = np.array(C65).reshape(delta2.shape)      
+# _____________________________________________________________________
+def get_C85():
+    '''
+    
+    Etape 4 : Calcul des valeurs des coefficients C85
+
+    '''
+    global C85
+    
+    C85 = list()
+    
+    for i in range(len(delta1)):
+    
+        x = delta1[i]
+        
+        if delta2[i] <=1.0 :
+            z1 = 1.0
+            y1 = -0.027 - 0.235*x + 0.312*x**2 - 0.157*x**3
+            z2 = 1.4
+            y2 = 0.039 - 0.534*x + 0.404*x**2 - 0.125*x**3
+        
+        elif 1.0 < delta2[i] and delta2[i] <=1.1:
+            z1 = 1.0
+            y1 = -0.027 - 0.235*x + 0.312*x**2 - 0.157*x**3
+            z2 = 1.1
+            y2 = 0.024 - 0.458*x + 0.506*x**2 - 0.209*x**3
+            
+        elif 1.1 < delta2[i] and delta2[i] <=1.2:
+            z1 = 1.1
+            y1 = 0.024 - 0.458*x + 0.506*x**2 - 0.209*x**3
+            z2 = 1.2
+            y2 = -0.0005 - 0.380*x + 0.347*x**2 - 0.132*x**3
+            
+        elif 1.2 < delta2[i] and delta2[i] <=1.3:
+            z1 = 1.2
+            y1 = -0.0005 - 0.380*x + 0.347*x**2 - 0.132*x**3
+            z2 = 1.3
+            y2 = 0.032 - 0.514*x + 0.446*x**2 - 0.155*x**3
+            
+        elif 1.3 < delta2[i] and delta2[i] <=1.4:
+            z1 = 1.3
+            y1 = 0.032 - 0.514*x + 0.446*x**2 - 0.155*x**3
+            z2 = 1.4
+            y2 = 0.039 - 0.534*x + 0.404*x**2 - 0.125*x**3
+    
+        elif 1.4 < delta2[i] :
+            z1 = 1.0
+            y1 = -0.027 - 0.235*x + 0.312*x**2 - 0.157*x**3
+            z2 = 1.4
+            y2 = 0.039 - 0.534*x + 0.404*x**2 - 0.125*x**3
+            
+        a = (y1 - y2)/(z1 - z2)
+        b = y1 - a*z1
+        
+        C85.append(a*delta2[i] + b)
+        
+        
+    C85 = np.array(C85).reshape(delta2.shape)    
+# _____________________________________________________________________
+def get_C26():
+    '''
+    
+    Etape 4 : Calcul des valeurs des coefficients C26
+
+    '''
+    global C26
+    
+    C26 = list()
+    
+    for i in range(len(delta1)):
+    
+        x = delta1[i]
+        
+        if delta2[i] <=1.0 :
+            z1 = 1.0
+            y1 = 0.383 + 1.682*x - 1.721*x**2 + 0.484*x**3
+            z2 = 1.4
+            y2 = 0.361 + 1.685*x - 1.295*x**2 + 0.269*x**3
+        
+        elif 1.0 < delta2[i] and delta2[i] <=1.1:
+            z1 = 1.0
+            y1 = 0.383 + 1.682*x - 1.721*x**2 + 0.484*x**3
+            z2 = 1.1
+            y2 = 0.282 + 2.068*x - 2.068*x**2 - 0.598*x**3
+            
+        elif 1.1 < delta2[i] and delta2[i] <=1.2:
+            z1 = 1.1
+            y1 = 0.282 + 2.068*x - 2.068*x**2 - 0.598*x**3
+            z2 = 1.2
+            y2 = 0.350 + 1.785*x - 1.614*x**2 + 0.412*x**3
+            
+        elif 1.2 < delta2[i] and delta2[i] <=1.3:
+            z1 = 1.2
+            y1 = 0.350 + 1.785*x - 1.614*x**2 + 0.412*x**3
+            z2 = 1.3
+            y2 = 0.279 + 2.013*x - 1.766*x**2 + 0.450*x**3
+            
+        elif 1.3 < delta2[i] and delta2[i] <=1.4:
+            z1 = 1.3
+            y1 = 0.279 + 2.013*x - 1.766*x**2 + 0.450*x**3
+            z2 = 1.4
+            y2 = 0.361 + 1.685*x - 1.295*x**2 + 0.269*x**3
+    
+        elif 1.4 < delta2[i] :
+            z1 = 1.0
+            y1 = 0.383 + 1.682*x - 1.721*x**2 + 0.484*x**3
+            z2 = 1.4
+            y2 = 0.361 + 1.685*x - 1.295*x**2 + 0.269*x**3
+            
+        a = (y1 - y2)/(z1 - z2)
+        b = y1 - a*z1
+        
+        C26.append(a*delta2[i] + b)
+        
+        
+    C26 = np.array(C26).reshape(delta2.shape)       
+# _____________________________________________________________________
+def get_C36():
+    '''
+    
+    Etape 4 : Calcul des valeurs des coefficients C36
+
+    '''
+    global C36
+    
+    C36 = list()
+    
+    for i in range(len(delta1)):
+    
+        x = delta1[i]
+        
+        if delta2[i] <=1.0 :
+            z1 = 1.0
+            y1 = 0.048 - 0.205*x + 0.066*x**2
+            z2 = 1.4
+            y2 = 0.033 - 0.134*x + 0.036*x**2
+        
+        elif 1.0 < delta2[i] and delta2[i] <=1.1:
+            z1 = 1.0
+            y1 = 0.048 - 0.205*x + 0.066*x**2
+            z2 = 1.1
+            y2 = 0.041 - 0.179*x + 0.055*x**2
+            
+        elif 1.1 < delta2[i] and delta2[i] <=1.2:
+            z1 = 1.1
+            y1 = 0.041 - 0.179*x + 0.055*x**2
+            z2 = 1.2
+            y2 = 0.042 - 0.169*x + 0.051*x**2
+            
+        elif 1.2 < delta2[i] and delta2[i] <=1.3:
+            z1 = 1.2
+            y1 = 0.042 - 0.169*x + 0.051*x**2
+            z2 = 1.3
+            y2 = 0.034 - 0.143*x + 0.038*x**2
+            
+        elif 1.3 < delta2[i] and delta2[i] <=1.4:
+            z1 = 1.3
+            y1 = 0.034 - 0.143*x + 0.038*x**2
+            z2 = 1.4
+            y2 = 0.033 - 0.134*x + 0.036*x**2
+    
+        elif 1.4 < delta2[i] :
+            z1 = 1.0
+            y1 = 0.048 - 0.205*x + 0.066*x**2
+            z2 = 1.4
+            y2 = 0.033 - 0.134*x + 0.036*x**2
+            
+        a = (y1 - y2)/(z1 - z2)
+        b = y1 - a*z1
+        
+        C36.append(a*delta2[i] + b)
+        
+        
+    C36 = np.array(C36).reshape(delta2.shape)        
+# _____________________________________________________________________
+def get_C56():
+    '''
+    
+    Etape 4 : Calcul des valeurs des coefficients C56
+
+    '''
+    global C56
+    
+    C56 = list()
+    
+    for i in range(len(delta1)):
+    
+        x = delta1[i]
+        
+        if delta2[i] <=1.0 :
+            z1 = 1.0
+            y1 = 0.264 - 0.902*x + 0.060*x**2
+            z2 = 1.4
+            y2 = 0.141 - 0.401*x - 0.176*x**2
+        
+        elif 1.0 < delta2[i] and delta2[i] <=1.1:
+            z1 = 1.0
+            y1 = 0.264 - 0.902*x + 0.060*x**2
+            z2 = 1.1
+            y2 = 0.204 - 0.694*x - 0.050*x**2
+            
+        elif 1.1 < delta2[i] and delta2[i] <=1.2:
+            z1 = 1.1
+            y1 = 0.204 - 0.694*x - 0.050*x**2
+            z2 = 1.2
+            y2 = 0.230 - 0.699*x - 0.041*x**2
+            
+        elif 1.2 < delta2[i] and delta2[i] <=1.3:
+            z1 = 1.2
+            y1 = 0.230 - 0.699*x - 0.041*x**2
+            z2 = 1.3
+            y2 = 0.181 - 0.542*x - 0.108*x**2
+            
+        elif 1.3 < delta2[i] and delta2[i] <=1.4:
+            z1 = 1.3
+            y1 = 0.181 - 0.542*x - 0.108*x**2
+            z2 = 1.4
+            y2 = 0.141 - 0.401*x - 0.176*x**2
+    
+        elif 1.4 < delta2[i] :
+            z1 = 1.0
+            y1 = 0.264 - 0.902*x + 0.060*x**2
+            z2 = 1.4
+            y2 = 0.141 - 0.401*x - 0.176*x**2
+            
+        a = (y1 - y2)/(z1 - z2)
+        b = y1 - a*z1
+        
+        C56.append(a*delta2[i] + b)
+        
+        
+    C56 = np.array(C56).reshape(delta2.shape)         
+# _____________________________________________________________________
+def get_C86():
+    '''
+    
+    Etape 4 : Calcul des valeurs des coefficients C86
+
+    '''
+    global C86
+    
+    C86 = list()
+    
+    for i in range(len(delta1)):
+    
+        x = delta1[i]
+        
+        if delta2[i] <=1.0 :
+            z1 = 1.0
+            y1 = -0.091 + 0.174*x + 0.166*x**2
+            z2 = 1.4
+            y2 = 0.008 - 0.153*x + 0.293*x**2
+        
+        elif 1.0 < delta2[i] and delta2[i] <=1.1:
+            z1 = 1.0
+            y1 = -0.091 + 0.174*x + 0.166*x**2
+            z2 = 1.1
+            y2 = -0.067 + 0.092*x + 0.196*x**2
+            
+        elif 1.1 < delta2[i] and delta2[i] <=1.2:
+            z1 = 1.1
+            y1 = -0.067 + 0.092*x + 0.196*x**2
+            z2 = 1.2
+            y2 = -0.063 + 0.053*x + 0.207*x**2
+            
+        elif 1.2 < delta2[i] and delta2[i] <=1.3:
+            z1 = 1.2
+            y1 = -0.063 + 0.053*x + 0.207*x**2
+            z2 = 1.3
+            y2 = -0.025 - 0.060*x + 0.255*x**2
+            
+        elif 1.3 < delta2[i] and delta2[i] <=1.4:
+            z1 = 1.3
+            y1 = -0.025 - 0.060*x + 0.255*x**2
+            z2 = 1.4
+            y2 = 0.008 - 0.153*x + 0.293*x**2
+    
+        elif 1.4 < delta2[i] :
+            z1 = 1.0
+            y1 = -0.091 + 0.174*x + 0.166*x**2
+            z2 = 1.4
+            y2 = 0.008 - 0.153*x + 0.293*x**2
+            
+        a = (y1 - y2)/(z1 - z2)
+        b = y1 - a*z1
+        
+        C86.append(a*delta2[i] + b)
+        
+        
+    C86 = np.array(C86).reshape(delta2.shape)    
+# _____________________________________________________________________
+def get_C27():
+    '''
+    
+    Etape 4 : Calcul des valeurs des coefficients C27
+
+    '''
+    global C27
+    
+    C27 = list()
+    
+    for i in range(len(delta1)):
+    
+        x = delta1[i]
+        
+        if delta2[i] <=1.0 :
+            z1 = 1.0
+            y1 = -0.5714 - 0.66156*x + 0.92695*x**2 - 0.27778*x**3
+            z2 = 1.4
+            y2 = -0.3598 - 1.83555*x + 1.90043*x**2 - 0.56818*x**3
+        
+        elif 1.0 < delta2[i] and delta2[i] <=1.1:
+            z1 = 1.0
+            y1 = -0.5714 - 0.66156*x + 0.92695*x**2 - 0.27778*x**3
+            z2 = 1.1
+            y2 = -0.6216 - 0.62187*x + 0.79383*x**2 - 0.21044*x**3
+            
+        elif 1.1 < delta2[i] and delta2[i] <=1.2:
+            z1 = 1.1
+            y1 = -0.6216 - 0.62187*x + 0.79383*x**2 - 0.21044*x**3
+            z2 = 1.2
+            y2 = -0.5466 - 1.06046*x + 1.2408*x**2 - 0.36616*x**3
+            
+        elif 1.2 < delta2[i] and delta2[i] <=1.3:
+            z1 = 1.2
+            y1 = -0.5466 - 1.06046*x + 1.2408*x**2 - 0.36616*x**3
+            z2 = 1.3
+            y2 = -0.6421 - 0.75126*x + 0.74567*x**2 - 0.15572*x**3
+            
+        elif 1.3 < delta2[i] and delta2[i] <=1.4:
+            z1 = 1.3
+            y1 = -0.6421 - 0.75126*x + 0.74567*x**2 - 0.15572*x**3
+            z2 = 1.4
+            y2 = -0.3598 - 1.83555*x + 1.90043*x**2 - 0.56818*x**3
+    
+        elif 1.4 < delta2[i] :
+            z1 = 1.0
+            y1 = -0.5714 - 0.66156*x + 0.92695*x**2 - 0.27778*x**3
+            z2 = 1.4
+            y2 = -0.3598 - 1.83555*x + 1.90043*x**2 - 0.56818*x**3
+            
+        a = (y1 - y2)/(z1 - z2)
+        b = y1 - a*z1
+        
+        C27.append(a*delta2[i] + b)
+        
+        
+    C27 = np.array(C27).reshape(delta2.shape)           
+# _____________________________________________________________________
+def get_C37():
+    '''
+    
+    Etape 4 : Calcul des valeurs des coefficients C37
+
+    '''
+    global C37
+    
+    C37 = list()
+    
+    for i in range(len(delta1)):
+    
+        x = delta1[i]
+        
+        if delta2[i] <=1.0 :
+            z1 = 1.0
+            y1 = -0.232 + 0.197*x - 0.056*x**2
+            z2 = 1.4
+            y2 = -0.235 + 0.165*x - 0.040*x**2
+        
+        elif 1.0 < delta2[i] and delta2[i] <=1.1:
+            z1 = 1.0
+            y1 = -0.232 + 0.197*x - 0.056*x**2
+            z2 = 1.1
+            y2 = -0.232 + 0.182*x - 0.047*x**2
+            
+        elif 1.1 < delta2[i] and delta2[i] <=1.2:
+            z1 = 1.1
+            y1 = -0.232 + 0.182*x - 0.047*x**2
+            z2 = 1.2
+            y2 = -0.235 + 0.178*x - 0.046*x**2
+            
+        elif 1.2 < delta2[i] and delta2[i] <=1.3:
+            z1 = 1.2
+            y1 = -0.235 + 0.178*x - 0.046*x**2
+            z2 = 1.3
+            y2 = -0.234 + 0.165*x - 0.039*x**2
+            
+        elif 1.3 < delta2[i] and delta2[i] <=1.4:
+            z1 = 1.3
+            y1 = -0.234 + 0.165*x - 0.039*x**2
+            z2 = 1.4
+            y2 = -0.235 + 0.165*x - 0.040*x**2
+    
+        elif 1.4 < delta2[i] :
+            z1 = 1.0
+            y1 = -0.232 + 0.197*x - 0.056*x**2
+            z2 = 1.4
+            y2 = -0.235 + 0.165*x - 0.040*x**2
+            
+        a = (y1 - y2)/(z1 - z2)
+        b = y1 - a*z1
+        
+        C37.append(a*delta2[i] + b)
+        
+        
+    C37 = np.array(C37).reshape(delta2.shape)        
+# _____________________________________________________________________
+def get_C57():
+    '''
+    
+    Etape 4 : Calcul des valeurs des coefficients C57
+
+    '''
+    global C57
+    
+    C57 = list()
+    
+    for i in range(len(delta1)):
+    
+        x = delta1[i]
+        
+        if delta2[i] <=1.0 :
+            z1 = 1.0
+            y1 = 0.155 + 0.800*x - 0.127*x**2
+            z2 = 1.4
+            y2 = 0.157 + 0.426*x + 0.092*x**2
+        
+        elif 1.0 < delta2[i] and delta2[i] <=1.1:
+            z1 = 1.0
+            y1 = 0.155 + 0.800*x - 0.127*x**2
+            z2 = 1.1
+            y2 = 0.136 + 0.720*x - 0.064*x**2
+            
+        elif 1.1 < delta2[i] and delta2[i] <=1.2:
+            z1 = 1.1
+            y1 = 0.136 + 0.720*x - 0.064*x**2
+            z2 = 1.2
+            y2 = 0.111 + 0.688*x - 0.044*x**2
+            
+        elif 1.2 < delta2[i] and delta2[i] <=1.3:
+            z1 = 1.2
+            y1 = 0.111 + 0.688*x - 0.044*x**2
+            z2 = 1.3
+            y2 = 0.126 + 0.567*x + 0.023*x**2
+            
+        elif 1.3 < delta2[i] and delta2[i] <=1.4:
+            z1 = 1.3
+            y1 = 0.126 + 0.567*x + 0.023*x**2
+            z2 = 1.4
+            y2 = 0.157 + 0.426*x + 0.092*x**2
+    
+        elif 1.4 < delta2[i] :
+            z1 = 1.0
+            y1 = 0.155 + 0.800*x - 0.127*x**2
+            z2 = 1.4
+            y2 = 0.157 + 0.426*x + 0.092*x**2
+            
+        a = (y1 - y2)/(z1 - z2)
+        b = y1 - a*z1
+        
+        C57.append(a*delta2[i] + b)
+        
+        
+    C57 = np.array(C57).reshape(delta2.shape)       
+# _____________________________________________________________________
+def get_C87(): 
+    '''
+    
+    Etape 4 : Calcul des valeurs des coefficients C87
+
+    '''
+    global C87
+    
+    C87 = list()
+    
+    for i in range(len(delta1)):
+    
+        x = delta1[i]
+        
+        if delta2[i] <=1.0 :
+            z1 = 1.0
+            y1 = 0.253 + 0.544*x - 0.844*x**2 + 0.295*x**3
+            z2 = 1.4
+            y2 = 0.453 + 0.544*x - 0.844*x**2 + 0.295*x**3
+        
+        elif 1.0 < delta2[i] and delta2[i] <=1.1:
+            z1 = 1.0
+            y1 = 0.253 + 0.544*x - 0.844*x**2 + 0.295*x**3
+            z2 = 1.1
+            y2 = 0.303 + 0.544*x - 0.844*x**2 + 0.295*x**3
+            
+        elif 1.1 < delta2[i] and delta2[i] <=1.2:
+            z1 = 1.1
+            y1 = 0.303 + 0.544*x - 0.844*x**2 + 0.295*x**3
+            z2 = 1.2
+            y2 = 0.353 + 0.544*x - 0.844*x**2 + 0.295*x**3
+            
+        elif 1.2 < delta2[i] and delta2[i] <=1.3:
+            z1 = 1.2
+            y1 = 0.353 + 0.544*x - 0.844*x**2 + 0.295*x**3
+            z2 = 1.3
+            y2 = 0.403 + 0.544*x - 0.844*x**2 + 0.295*x**3
+            
+        elif 1.3 < delta2[i] and delta2[i] <=1.4:
+            z1 = 1.3
+            y1 = 0.403 + 0.544*x - 0.844*x**2 + 0.295*x**3
+            z2 = 1.4
+            y2 = 0.453 + 0.544*x - 0.844*x**2 + 0.295*x**3
+    
+        elif 1.4 < delta2[i] :
+            z1 = 1.0
+            y1 = 0.253 + 0.544*x - 0.844*x**2 + 0.295*x**3
+            z2 = 1.4
+            y2 = 0.453 + 0.544*x - 0.844*x**2 + 0.295*x**3
+            
+        a = (y1 - y2)/(z1 - z2)
+        b = y1 - a*z1
+        
+        C87.append(a*delta2[i] + b)
+        
+        
+    C87 = np.array(C87).reshape(delta2.shape)        
+   
+#####################################################################    
+
+def compute_Stress(): 
+    '''
+    
+    Etape 5 : Calcul des valeurs des valeurs des contraintes exercées au droit des coupes dans les sections critiques
+
+    '''
+    global sigma_mx1,sigma_bx1,sigma_my1,sigma_by1
+    global sigma_mx2,sigma_bx2,sigma_my2,sigma_by2
+    global sigma_mx3,sigma_bx3,sigma_my3,sigma_by3
+    
+    # Contrainte longitudinales de membrane sigma_mx1 au droit de la coupe dans la section critique 1
+    sigma_mx1 = (C12*R2 + C13*R3)*eu3/a1
+    
+    # Contrainte longitudinales de flexion sigma_bx1 au droit de la coupe dans la section critique 1
+    sigma_bx1 = (C21*R1 + C22*R2 + C24*R4 + C25*R5 + C26*R6 + C27*R7)*(eu3/a1)**2
+    
+    # Contrainte circonferentielle de membrane sigma_my1 au droit de la coupe dans la section critique 1
+    sigma_my1 = C31*R1 + C32*R2 + C34*R4 + C35*R5 + C36*R6 + C37*R7
+
+    # Contrainte circonferentielle de flexion sigma_by1 au droit de la coupe dans la section critique 1
+    sigma_by1 = 0.3*sigma_bx1
+    
+    
+
+    # Contrainte longitudinales de membrane sigma_mx2 au droit de la coupe dans la section critique 2
+    sigma_mx2 = C41*R1
+    
+    # Contrainte longitudinales de flexion sigma_bx2 au droit de la coupe dans la section critique 2
+    sigma_bx2 = C51*R1 + C52*R2 + C54*R4 + C55*R5 + C56*R6 + C57*R7
+    
+    # Contrainte circonferentielle de membrane sigma_my2 au droit de la coupe dans la section critique 2
+    sigma_my2 = C61*R1 + C62*R2 + C64*R4 + C65*R5 + C66*R6 + C67*R7
+
+    # Contrainte circonferentielle de flexion sigma_by2 au droit de la coupe dans la section critique 2
+    sigma_by2 = 0.3*sigma_bx2
+    
+        
+
+    # Contrainte longitudinales de membrane sigma_mx3 au droit de la coupe dans la section critique 3
+    sigma_mx3 = C71*R1 + C72*R2 + C73*R3
+    
+    # Contrainte longitudinales de flexion sigma_bx3 au droit de la coupe dans la section critique 3
+    sigma_bx3 = C81*R1 + C82*R2 + C84*R4 + C85*R5 + C86*R6 + C87*R7
+    
+    # Contrainte circonferentielle de membrane sigma_my3 au droit de la coupe dans la section critique 3
+    sigma_my3 = C91*R1 + C92*R2 + C94*R4 + C95*R5 + C96*R6 + C97*R7
+
+    # Contrainte circonferentielle de flexion sigma_by3 au droit de la coupe dans la section critique 3
+    sigma_by3 = 0.3*sigma_bx3
+# _____________________________________________________________________
+
+        
+# %%
+###############################################################################################################	
+
+# WorkDirectory ----------------------------
+
+dir_path = os.path.dirname(os.path.realpath(__file__))
+# workdir = dir_path+'\Jupe_Fond_CODAP'
+workdir = dir_path
+
+# Change directory
+os.chdir(workdir)
+
+# Start program----------------------------
+program_start()
+
+# Clean folder
+# clean_workdir_all_files(workdir+'\RES\\')
+
+# Clean unnecessery file ----------------------------
+# to_not_deleted_extensions = ['.txt','.csv','.png','.odb']
+# not_clean_workdir_some_files(workdir, extensions_to_deleted)
+
+# extensions_to_deleted = ['.pdf']
+# clean_workdir_some_files(workdir+'\\', extensions_to_deleted)
+
+# %% 
+# Preprocessing
+
+# Recuperation des parametre d'entrée
+# Etape 0 : Verification des conditions d'application des règles
+# Etapes 1 et 2 sont directement renseigner dans les données d'entrée
+filename = 'SettingFile.csv'
+set_input_variables(filename)
+
+
+# %% 
+# Processing
+
+#  Etape 3 : Calcul des valeurs des parametres qui décrivent les sollicitations appliquées au raccordement (la jonction)
+loding_parameters()
+# print(R1, R2, R3, R4, R5, R6, R7)
+
+#  Etape 4 : Calcul des valeurs des coefficients Cij
+compute_Cij_coef()
+# print(delta1, delta2, lambda1)
+# print(C21)
+
+#  Etape 5 : Calcul des valeurs des valeurs des contraintes exercées au droit des coupes dans les sections critiques
+compute_Stress()
+
+
+
+# %% 
+# Post Processing
+
+write_outputs()
+
+
+
+
+# %%
+# End program----------------------------
+program_end()
+
+
+
+
+###############################################################################################################
+# %%
+
+
+
+
+

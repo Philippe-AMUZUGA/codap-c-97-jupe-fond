@@ -1,0 +1,26 @@
+{
+  "origine": "programme de calcul C9.7.5 de l'auteur, version 02 du 2026-10-20, tables C9.A6 corrigees le 2026-11-08 (C26, C92)",
+  "fichiers": {
+    "codap_c97/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "codap_c97/admissibility.py": "60a9464147a8d8f573a2a579a06214ecacb4aae1556460c933859d0a0a475062",
+    "codap_c97/coefficients/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "codap_c97/coefficients/_tables_C9A6.py": "6e8f8300ec1f58e7d77b7950fc70a59f9294a01bc8c790b8e707271ad5e5cccd",
+    "codap_c97/coefficients/assembly.py": "462313517697613834e41887ff452e9e56fb791c148f50a950286866bd25615c",
+    "codap_c97/coefficients/interp.py": "6affcf0ac048de63af8fd12296851c6fbec8cd82ae6ddc9292296d663e3180d8",
+    "codap_c97/config.py": "fba2e459f791965474cef21fea9292416277104f2a5a1560ad5aad741a0afb98",
+    "codap_c97/io_excel.py": "d25d39ef809382672d6f06d44647fd55cb1542bac89053b20795086f8d8e8475",
+    "codap_c97/loads.py": "ac1f2ac152cac5c911987f33f0790d2a78f823efa1c99ca04eb8ac643092e2a8",
+    "codap_c97/runner.py": "f882960bba032187a36c72a649b52d9a8e9fb87a2014f638c5c36565a43d0fc2",
+    "codap_c97/stability.py": "3f0030095c54796ca31b0ae66a91f5d74bc7cb602829e1cd86d59975f0821560",
+    "codap_c97/stresses.py": "fb91cad5be612086a90b3f1dc1a8def0f2b712f577e4f62bb0171b4930c2e3de",
+    "codap_c97/validation.py": "32ac895b07aa32cb3596d25c89c95a4b51f23309985b8b4cb2e750788f047019",
+    "Preprocess.py": "451ad135396314393e9a8773c4d2aabd2b493a9c88dd6613761bad4fe0342a61",
+    "tests/_runner.py": "f48d81d91d59a08e77a40393c6591fe5dcbf010877b38a66bb2b0849775c1b20",
+    "tests/run_all.py": "f158721ab8c113d2da5ca03362b64d387a3d2a321d34eb0505dea1bd21465c45",
+    "tests/test_c975_reference.py": "f2928ace5b89373f206974fdbf2954056d8e0e241d282487c1bf47c3cb9f24ea",
+    "tests/test_coefficients.py": "9b55d303efe954e87311b5824b3047be65517dc4f8cb5e0b539f4a76f0fc85ba",
+    "tests/test_io_and_pipeline.py": "cc36de7ab8c4cec63ba4c0af3afe1141a3f5cfd203f75432c53fdbb6578d1a9c",
+    "tests/test_stability.py": "736d550acd549dbee4d07c7155f8aabd3cbc3ffed162d82213c551b0702decb6",
+    "temoin/JupeFond_CODAP_C9-7_v2022.py.txt": "409e009ed16cca1c12cb26d545169910ce4c910bcf40cbdf9e45edaff2d94c69"
+  }
+}

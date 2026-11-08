@@ -1,0 +1,88 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "codap-c-97-jupe-fond"
+dynamic = ["version"]
+description = "Vérification CODAP C9.7.5 des assemblages jupe-fond et comparaison à une référence EF"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Philippe Amuzuga" }]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Natural Language :: French",
+    "Natural Language :: English",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "matplotlib>=3.8",
+    "openpyxl>=3.1",
+    "numpy>=2",
+    "pandas>=2",
+]
+
+[project.scripts]
+codap-c-97-jupe-fond = "codap_c_97_jupe_fond.__main__:principal"
+
+[project.urls]
+Source = "https://github.com/Philippe-AMUZUGA/codap-c-97-jupe-fond"
+
+[tool.setuptools.dynamic]
+version = { attr = "codap_c_97_jupe_fond.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"codap_c_97_jupe_fond" = ["donnees/*.toml", "textes/*.toml", "assets/*.png", "assets/*.ico", "core/source/*.json"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-ra"
+filterwarnings = ["error"]
+
+[tool.ruff]
+line-length = 120
+src = ["src", "tests"]
+# La source d'origine est copiée telle quelle : ni reformatée, ni corrigée (son empreinte est contrôlée).
+# `outils/` (lanceur) est contrôlé et formaté comme le reste ; seules quelques règles sont écartées pour lui (voir plus bas).
+extend-exclude = ["src/codap_c_97_jupe_fond/core/source"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "N", "SIM", "RUF"]
+ignore = [
+    "RUF001",  # lettres accentuées et apostrophes typographiques voulues dans les textes
+    "RUF002",
+    "RUF003",
+    "N818",    # exceptions nommées en français (ErreurSaisie, ErreurCalcul)
+    "UP046",   # `Generic[T]` reste valable de Python 3.11 à 3.13 (la forme `class X[T]` demande 3.12)
+    "UP047",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# `outils/` : le lanceur (amorce.py) et le script des roues (preparer_roues.py) n'emploient que la bibliothèque standard
+# et sont écrits pour dire clairement pourquoi un poste est refusé, même avec un Python ancien. Règles écartées pour eux
+# seuls, chacune pour un motif :
+"outils/*.py" = [
+    "UP031",  # formats `%` voulus : messages courts, sans f-string, plus lisibles dans une liste de consignes
+    "UP036",  # le test de version est voulu : message clair avant le moindre import de syntaxe récente
+    "B904",   # l'erreur du lanceur remplace l'exception d'origine à dessein : l'utilisateur lit un message, pas deux traces
+    "RUF005", # concaténations de listes de commande, plus lisibles que le dépliage `[*a, b]`
+    "SIM105", # `try ... except ... pass` garde la cause visible au lecteur du lanceur
+    "SIM110", # boucle `for` explicite plus lisible qu'un `any(...)` à rallonge
+    "SIM115", # le journal reste ouvert pour toute la durée du lancement : un `with` n'y a pas de sens
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["codap_c_97_jupe_fond"]
+known-local-folder = ["conftest"]  # l'ordre des imports des tests ne dépend pas du nom du paquet

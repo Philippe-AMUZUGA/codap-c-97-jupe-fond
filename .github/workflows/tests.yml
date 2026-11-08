@@ -1,0 +1,61 @@
+name: Vérifications
+
+"on":
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: ${{ matrix.os }}, Python ${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+        python: ["3.11", "3.13"]
+    defaults:
+      run:
+        shell: bash
+    env:
+      PIP_DISABLE_PIP_VERSION_CHECK: "1"
+      PIP_NO_INPUT: "1"
+      PYTHONPATH: "${{ github.workspace }}/src"
+    steps:
+      - name: Lire les sources
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Préparer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Installer les dépendances
+        run: |
+          python -m pip install -r requirements.txt
+          python -m pip install -r requirements-dev.txt
+      - name: Vérifier le style avec ruff
+        run: python -m ruff check .
+      - name: Exécuter les tests
+        run: python -m pytest
+      - name: Exécuter le mode d’essai
+        run: python -m codap_c_97_jupe_fond -t
+      - name: Essayer le lanceur Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          cmd /c "Lancer_CodapC97JupeFond.bat -t"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Essayer le lanceur Linux et macOS
+        if: runner.os != 'Windows'
+        run: sh ./lancer_codap-c-97-jupe-fond.sh -t
+      - name: Auditer les dépendances
+        run: |
+          python -m pip install pip-audit
+          python -m pip_audit -r requirements.txt

@@ -1,0 +1,53 @@
+name: Idée
+description: Proposer une fonction à partir d’un usage précis.
+title: "[Idée] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Décrivez le besoin et un résultat observable.
+        Retirez les données personnelles des exemples, journaux et captures.
+  - type: input
+    id: version
+    attributes:
+      label: Version de l’application
+      description: Indiquez la version utilisée pour examiner ce besoin.
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: input
+    id: systeme
+    attributes:
+      label: Système et version
+      description: Indiquez le système et son architecture.
+    validations:
+      required: true
+  - type: textarea
+    id: besoin
+    attributes:
+      label: Besoin et résultat souhaité
+      description: Nommez l’écran concerné et la tâche qui manque ou demande trop d’opérations.
+    validations:
+      required: true
+  - type: textarea
+    id: etapes
+    attributes:
+      label: Étapes actuelles et étapes souhaitées
+      description: Décrivez un exemple d’utilisation et les commandes attendues.
+    validations:
+      required: true
+  - type: textarea
+    id: journal
+    attributes:
+      label: Journal utile au besoin
+      description: Joignez un extrait nettoyé si un message illustre le besoin, ou indiquez « Sans objet ».
+      render: text
+    validations:
+      required: false
+  - type: textarea
+    id: capture
+    attributes:
+      label: Capture d’écran
+      description: Déposez une capture nettoyée de l’écran concerné, ou indiquez « Sans objet ».
+    validations:
+      required: false

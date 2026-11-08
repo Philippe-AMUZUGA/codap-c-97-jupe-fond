@@ -1,0 +1,595 @@
+# Entrées de l'application : les 35 grandeurs du programme d'origine (descriptions de `io_excel.INPUT_COLUMNS`),
+# le type de fond et la situation, puis les réglages des écrans Classeur et Étude (`formulaire = false`).
+# Valeurs de départ : première configuration de l'étude (e = 5 mm, D1 = H = 700 mm), convertie par `Preprocess`.
+# Seules bornes posées : la stricte positivité que le programme d'origine exige (conditions C9.7.2) et celle des
+# réglages du rejeu ; aucune autre borne n'est écrite par la source.
+
+[[entree]]
+nom = "a1"
+type = "reel"
+defaut = 5.0
+unite = "mm"
+minimum = 0.0
+minimum_exclu = true
+libelle = "Gorge de soudure a1"
+libelle_en = "Weld throat a1"
+aide = "Épaisseur de la gorge de la soudure de raccordement jupe-appareil."
+aide_en = "Throat thickness of the skirt-to-vessel weld."
+groupe = "Géométrie"
+groupe_en = "Geometry"
+
+[[entree]]
+nom = "D1"
+type = "reel"
+defaut = 700.0
+unite = "mm"
+minimum = 0.0
+minimum_exclu = true
+libelle = "Diamètre D1"
+libelle_en = "Diameter D1"
+aide = "Diamètre intérieur de l'enveloppe cylindrique."
+aide_en = "Inside diameter of the cylindrical shell."
+groupe = "Géométrie"
+groupe_en = "Geometry"
+
+[[entree]]
+nom = "D3"
+type = "reel"
+defaut = 700.0
+unite = "mm"
+minimum = 0.0
+minimum_exclu = true
+libelle = "Diamètre D3"
+libelle_en = "Diameter D3"
+aide = "Diamètre intérieur de l'enveloppe au droit de la section Z-Z."
+aide_en = "Inside diameter of the shell at section Z-Z."
+groupe = "Géométrie"
+groupe_en = "Geometry"
+
+[[entree]]
+nom = "D4"
+type = "reel"
+defaut = 700.0
+unite = "mm"
+libelle = "Diamètre D4"
+libelle_en = "Diameter D4"
+aide = "Diamètre intérieur de la jupe au droit de la section X-X (égal à D3 en raccordement C)."
+aide_en = "Inside diameter of the skirt at section X-X (equal to D3 for a type C joint)."
+groupe = "Géométrie"
+groupe_en = "Geometry"
+
+[[entree]]
+nom = "c"
+type = "reel"
+defaut = 0.0
+unite = "mm"
+libelle = "Écartement c"
+libelle_en = "Offset c"
+aide = "Écartement des fibres moyennes de la jupe et de l'enveloppe."
+aide_en = "Distance between the mid-surfaces of skirt and shell."
+groupe = "Géométrie"
+groupe_en = "Geometry"
+
+[[entree]]
+nom = "eu1"
+type = "reel"
+defaut = 5.0
+unite = "mm"
+minimum = 0.0
+minimum_exclu = true
+libelle = "Épaisseur eu1"
+libelle_en = "Thickness eu1"
+aide = "Épaisseur utile de l'enveloppe cylindrique."
+aide_en = "Effective thickness of the cylindrical shell."
+groupe = "Géométrie"
+groupe_en = "Geometry"
+
+[[entree]]
+nom = "eu2"
+type = "reel"
+defaut = 5.0
+unite = "mm"
+minimum = 0.0
+minimum_exclu = true
+libelle = "Épaisseur eu2"
+libelle_en = "Thickness eu2"
+aide = "Épaisseur utile de la jupe (égale à eu1 en raccordement C, C9.7.5-17)."
+aide_en = "Effective thickness of the skirt (equal to eu1 for a type C joint, C9.7.5-17)."
+groupe = "Géométrie"
+groupe_en = "Geometry"
+
+[[entree]]
+nom = "eu3"
+type = "reel"
+defaut = 5.0
+unite = "mm"
+minimum = 0.0
+minimum_exclu = true
+libelle = "Épaisseur eu3"
+libelle_en = "Thickness eu3"
+aide = "Épaisseur utile du fond."
+aide_en = "Effective thickness of the head."
+groupe = "Géométrie"
+groupe_en = "Geometry"
+
+[[entree]]
+nom = "lg1"
+type = "reel"
+defaut = 1000.0
+unite = "mm"
+libelle = "Longueur lg1"
+libelle_en = "Length lg1"
+aide = "Longueur de référence 1."
+aide_en = "Reference length 1."
+groupe = "Géométrie"
+groupe_en = "Geometry"
+
+[[entree]]
+nom = "lg2"
+type = "reel"
+defaut = 1000.0
+unite = "mm"
+libelle = "Longueur lg2"
+libelle_en = "Length lg2"
+aide = "Longueur de référence 2."
+aide_en = "Reference length 2."
+groupe = "Géométrie"
+groupe_en = "Geometry"
+
+[[entree]]
+nom = "lg3"
+type = "reel"
+defaut = 300.0
+unite = "mm"
+libelle = "Longueur lg3"
+libelle_en = "Length lg3"
+aide = "Longueur de référence 3."
+aide_en = "Reference length 3."
+groupe = "Géométrie"
+groupe_en = "Geometry"
+
+[[entree]]
+nom = "h4"
+type = "reel"
+defaut = 0.0
+unite = "mm"
+libelle = "Emboîtement h4"
+libelle_en = "Overlap h4"
+aide = "Hauteur d'emboîtement, nulle en raccordement C."
+aide_en = "Overlap height, zero for a type C joint."
+groupe = "Géométrie"
+groupe_en = "Geometry"
+
+[[entree]]
+nom = "wg1"
+type = "reel"
+defaut = 0.0
+unite = "mm"
+libelle = "Écart de forme wg1"
+libelle_en = "Out-of-shape wg1"
+aide = "Écart de forme 1."
+aide_en = "Out-of-shape deviation 1."
+groupe = "Géométrie"
+groupe_en = "Geometry"
+
+[[entree]]
+nom = "wg2"
+type = "reel"
+defaut = 0.0
+unite = "mm"
+libelle = "Écart de forme wg2"
+libelle_en = "Out-of-shape wg2"
+aide = "Écart de forme 2."
+aide_en = "Out-of-shape deviation 2."
+groupe = "Géométrie"
+groupe_en = "Geometry"
+
+[[entree]]
+nom = "wg3"
+type = "reel"
+defaut = 0.0
+unite = "mm"
+libelle = "Écart de forme wg3"
+libelle_en = "Out-of-shape wg3"
+aide = "Écart de forme 3."
+aide_en = "Out-of-shape deviation 3."
+groupe = "Géométrie"
+groupe_en = "Geometry"
+
+[[entree]]
+nom = "FZ"
+type = "reel"
+defaut = 20000.0
+unite = "N"
+libelle = "Effort FZ"
+libelle_en = "Force FZ"
+aide = "Effort vertical global au droit de la section Z-Z, positif en compression ; aucun effet de fond de la pression n'y est ajouté."
+aide_en = "Global vertical force at section Z-Z, positive in compression; no pressure end effect is added to it."
+groupe = "Efforts et pression"
+groupe_en = "Loads and pressure"
+
+[[entree]]
+nom = "FY"
+type = "reel"
+defaut = 20000.0
+unite = "N"
+libelle = "Effort FY"
+libelle_en = "Force FY"
+aide = "Effort vertical global à la base de la jupe, section Y-Y."
+aide_en = "Global vertical force at the skirt base, section Y-Y."
+groupe = "Efforts et pression"
+groupe_en = "Loads and pressure"
+
+[[entree]]
+nom = "MZ"
+type = "reel"
+defaut = 21000000.0
+unite = "N.mm"
+libelle = "Moment MZ"
+libelle_en = "Moment MZ"
+aide = "Moment global de flexion au droit de la section Z-Z : F_vent × bras (bras = 2H dans l'étude)."
+aide_en = "Global bending moment at section Z-Z: F_wind × lever arm (2H in the study)."
+groupe = "Efforts et pression"
+groupe_en = "Loads and pressure"
+
+[[entree]]
+nom = "MY"
+type = "reel"
+defaut = 21000000.0
+unite = "N.mm"
+libelle = "Moment MY"
+libelle_en = "Moment MY"
+aide = "Moment global de flexion à la base de la jupe, section Y-Y."
+aide_en = "Global bending moment at the skirt base, section Y-Y."
+groupe = "Efforts et pression"
+groupe_en = "Loads and pressure"
+
+[[entree]]
+nom = "p"
+type = "reel"
+defaut = 1.2
+unite = "MPa"
+libelle = "Pression p"
+libelle_en = "Pressure p"
+aide = "Pression de calcul, positive intérieure, négative extérieure."
+aide_en = "Design pressure, positive inside, negative outside."
+groupe = "Efforts et pression"
+groupe_en = "Loads and pressure"
+
+[[entree]]
+nom = "T"
+type = "reel"
+defaut = 100.0
+unite = "°C"
+libelle = "Température T"
+libelle_en = "Temperature T"
+aide = "Température de calcul."
+aide_en = "Design temperature."
+groupe = "Thermique"
+groupe_en = "Thermal"
+
+[[entree]]
+nom = "gB"
+type = "reel"
+defaut = -0.05
+unite = "K/mm"
+libelle = "Gradient gB"
+libelle_en = "Gradient gB"
+aide = "Gradient thermique au bas de la jupe."
+aide_en = "Thermal gradient at the bottom of the skirt."
+groupe = "Thermique"
+groupe_en = "Thermal"
+
+[[entree]]
+nom = "gK"
+type = "reel"
+defaut = -0.05
+unite = "K/mm"
+libelle = "Gradient gK"
+libelle_en = "Gradient gK"
+aide = "Gradient thermique à la carre du fond."
+aide_en = "Thermal gradient at the head knuckle."
+groupe = "Thermique"
+groupe_en = "Thermal"
+
+[[entree]]
+nom = "gT"
+type = "reel"
+defaut = 0.14
+unite = "K/mm"
+libelle = "Gradient gT"
+libelle_en = "Gradient gT"
+aide = "Gradient thermique dans la jupe."
+aide_en = "Thermal gradient in the skirt."
+groupe = "Thermique"
+groupe_en = "Thermal"
+
+[[entree]]
+nom = "deltaTK"
+type = "reel"
+defaut = 0.0
+unite = "K"
+libelle = "Écart ΔTK"
+libelle_en = "Difference ΔTK"
+aide = "Écart de température affectant la carre du fond."
+aide_en = "Temperature difference at the head knuckle."
+groupe = "Thermique"
+groupe_en = "Thermal"
+
+[[entree]]
+nom = "deltaTT"
+type = "reel"
+defaut = 0.0
+unite = "K"
+libelle = "Écart ΔTT"
+libelle_en = "Difference ΔTT"
+aide = "Écart de température affectant la jupe."
+aide_en = "Temperature difference in the skirt."
+groupe = "Thermique"
+groupe_en = "Thermal"
+
+[[entree]]
+nom = "alphaK"
+type = "reel"
+defaut = 1.15e-05
+unite = "1/K"
+libelle = "Dilatation αK"
+libelle_en = "Expansion αK"
+aide = "Coefficient de dilatation du fond."
+aide_en = "Thermal expansion coefficient of the head."
+groupe = "Thermique"
+groupe_en = "Thermal"
+
+[[entree]]
+nom = "alphaT"
+type = "reel"
+defaut = 1.15e-05
+unite = "1/K"
+libelle = "Dilatation αT"
+libelle_en = "Expansion αT"
+aide = "Coefficient de dilatation de la jupe."
+aide_en = "Thermal expansion coefficient of the skirt."
+groupe = "Thermique"
+groupe_en = "Thermal"
+
+[[entree]]
+nom = "E"
+type = "reel"
+defaut = 210000.0
+unite = "MPa"
+libelle = "Module E"
+libelle_en = "Modulus E"
+aide = "Module d'élasticité à la température de calcul (210 000 MPa dans l'étude)."
+aide_en = "Elastic modulus at design temperature (210,000 MPa in the study)."
+groupe = "Matériau et sécurité"
+groupe_en = "Material and safety"
+
+[[entree]]
+nom = "Rp02t"
+type = "reel"
+defaut = 235.0
+unite = "MPa"
+libelle = "Limite Rp0,2/T"
+libelle_en = "Yield Rp0.2/T"
+aide = "Limite d'élasticité conventionnelle à 0,2 % à la température T."
+aide_en = "0.2 % proof stress at temperature T."
+groupe = "Matériau et sécurité"
+groupe_en = "Material and safety"
+
+[[entree]]
+nom = "f"
+type = "reel"
+defaut = 150.0
+unite = "MPa"
+libelle = "Contrainte nominale f"
+libelle_en = "Nominal stress f"
+aide = "Contrainte nominale de calcul du métal de base (150 MPa dans l'étude)."
+aide_en = "Nominal design stress of the base metal (150 MPa in the study)."
+groupe = "Matériau et sécurité"
+groupe_en = "Material and safety"
+
+[[entree]]
+nom = "fj"
+type = "reel"
+defaut = 150.0
+unite = "MPa"
+libelle = "Contrainte nominale fj"
+libelle_en = "Nominal stress fj"
+aide = "Contrainte nominale de calcul du joint soudé (150 MPa dans l'étude)."
+aide_en = "Nominal design stress of the welded joint (150 MPa in the study)."
+groupe = "Matériau et sécurité"
+groupe_en = "Material and safety"
+
+[[entree]]
+nom = "S"
+type = "reel"
+defaut = 1.2
+libelle = "Coefficient S"
+libelle_en = "Factor S"
+aide = "Coefficient de sécurité complémentaire."
+aide_en = "Additional safety factor."
+groupe = "Matériau et sécurité"
+groupe_en = "Material and safety"
+
+[[entree]]
+nom = "KS"
+type = "reel"
+defaut = 1.5
+libelle = "Coefficient KS"
+libelle_en = "Factor KS"
+aide = "Coefficient de sécurité au flambage."
+aide_en = "Buckling safety factor."
+groupe = "Matériau et sécurité"
+groupe_en = "Material and safety"
+
+[[entree]]
+nom = "phiS"
+type = "reel"
+defaut = 0.7
+libelle = "Coefficient φS"
+libelle_en = "Factor φS"
+aide = "Coefficient de soudure."
+aide_en = "Weld factor."
+groupe = "Matériau et sécurité"
+groupe_en = "Material and safety"
+
+[[entree]]
+nom = "type_fond"
+type = "choix"
+defaut = "korbbogen"
+choix = ["korbbogen", "elliptique"]
+etiquettes = { korbbogen = "Korbbogen", elliptique = "Elliptique" }
+etiquettes_en = { korbbogen = "Korbbogen", elliptique = "Elliptical" }
+libelle = "Type de fond"
+libelle_en = "Head type"
+aide = "Fond du calcul : Korbbogen ou elliptique. Le fond GRC des modèles EF n'a pas de coefficients en raccordement C : le traiter ainsi n'a aucune valeur réglementaire (C9.7.2.1 réserve le GRC au type AB)."
+aide_en = "Head used in the calculation: Korbbogen or elliptical. The GRC head of the FE models has no coefficients for a type C joint: treating it this way has no code value (C9.7.2.1 restricts GRC to type AB)."
+groupe = "Configuration"
+groupe_en = "Configuration"
+
+[[entree]]
+nom = "situation"
+type = "choix"
+defaut = "essai"
+choix = ["essai", "autre"]
+etiquettes = { essai = "Essai (sans effets thermiques)", autre = "Autre (exploitation)" }
+etiquettes_en = { essai = "Test (no thermal effects)", autre = "Other (operation)" }
+libelle = "Situation"
+libelle_en = "Situation"
+aide = "En situation d'essai, les contraintes thermiques sont nulles (R5 = R6 = R7 = 0)."
+aide_en = "In the test situation, thermal stresses are zero (R5 = R6 = R7 = 0)."
+groupe = "Configuration"
+groupe_en = "Configuration"
+
+[[entree]]
+nom = "classeur_fond"
+type = "choix"
+defaut = "korbbogen"
+choix = ["korbbogen", "elliptique"]
+etiquettes = { korbbogen = "Korbbogen", elliptique = "Elliptique" }
+etiquettes_en = { korbbogen = "Korbbogen", elliptique = "Elliptical" }
+libelle = "Type de fond"
+libelle_en = "Head type"
+aide = "Fond du calcul : Korbbogen ou elliptique. Le fond GRC des modèles EF n'a pas de coefficients en raccordement C : le traiter ainsi n'a aucune valeur réglementaire (C9.7.2.1 réserve le GRC au type AB)."
+aide_en = "Head used in the calculation: Korbbogen or elliptical. The GRC head of the FE models has no coefficients for a type C joint: treating it this way has no code value (C9.7.2.1 restricts GRC to type AB)."
+groupe = "Classeur"
+groupe_en = "Workbook"
+formulaire = false
+
+[[entree]]
+nom = "classeur_situation"
+type = "choix"
+defaut = "essai"
+choix = ["essai", "autre"]
+etiquettes = { essai = "Essai (sans effets thermiques)", autre = "Autre (exploitation)" }
+etiquettes_en = { essai = "Test (no thermal effects)", autre = "Other (operation)" }
+libelle = "Situation"
+libelle_en = "Situation"
+aide = "En situation d'essai, les contraintes thermiques sont nulles (R5 = R6 = R7 = 0)."
+aide_en = "In the test situation, thermal stresses are zero (R5 = R6 = R7 = 0)."
+groupe = "Classeur"
+groupe_en = "Workbook"
+formulaire = false
+
+[[entree]]
+nom = "classeur_bras"
+type = "reel"
+defaut = 2.0
+minimum = 0.0
+minimum_exclu = true
+libelle = "Bras de levier / H"
+libelle_en = "Lever arm / H"
+aide = "Pour un classeur de géométrie EF : MZ = F_vent × (ce rapport × H)."
+aide_en = "For an FE geometry workbook: MZ = F_wind × (this ratio × H)."
+groupe = "Classeur"
+groupe_en = "Workbook"
+formulaire = false
+
+[[entree]]
+nom = "etude_fond"
+type = "choix"
+defaut = "korbbogen"
+choix = ["korbbogen", "elliptique"]
+etiquettes = { korbbogen = "Korbbogen", elliptique = "Elliptique" }
+etiquettes_en = { korbbogen = "Korbbogen", elliptique = "Elliptical" }
+libelle = "Type de fond"
+libelle_en = "Head type"
+aide = "Fond du calcul : Korbbogen ou elliptique. Le fond GRC des modèles EF n'a pas de coefficients en raccordement C : le traiter ainsi n'a aucune valeur réglementaire (C9.7.2.1 réserve le GRC au type AB)."
+aide_en = "Head used in the calculation: Korbbogen or elliptical. The GRC head of the FE models has no coefficients for a type C joint: treating it this way has no code value (C9.7.2.1 restricts GRC to type AB)."
+groupe = "Comparaison EF"
+groupe_en = "FE comparison"
+formulaire = false
+
+[[entree]]
+nom = "etude_bras"
+type = "reel"
+defaut = 2.0
+minimum = 0.0
+minimum_exclu = true
+libelle = "Bras de levier / H"
+libelle_en = "Lever arm / H"
+aide = "MZ = F_vent × (ce rapport × H) ; 2 par défaut."
+aide_en = "MZ = F_wind × (this ratio × H); 2 by default."
+groupe = "Comparaison EF"
+groupe_en = "FE comparison"
+formulaire = false
+
+[[entree]]
+nom = "etude_seuil"
+type = "reel"
+defaut = 225.0
+unite = "MPa"
+minimum = 0.0
+minimum_exclu = true
+libelle = "Seuil EF"
+libelle_en = "FE threshold"
+aide = "Configuration résistante selon l'EF si la contrainte de Tresca linéarisée maximale reste sous ce seuil (1,5 f = 225 MPa)."
+aide_en = "A configuration is resistant according to FE if the maximum linearised Tresca stress stays below this threshold (1.5 f = 225 MPa)."
+groupe = "Comparaison EF"
+groupe_en = "FE comparison"
+formulaire = false
+
+[[entree]]
+nom = "etude_f"
+type = "reel"
+defaut = 150.0
+unite = "MPa"
+minimum = 0.0
+minimum_exclu = true
+libelle = "Contrainte nominale f"
+libelle_en = "Nominal stress f"
+aide = "Contrainte nominale du métal de base pour le calcul CODAP des cas comparés."
+aide_en = "Nominal base metal stress for the CODAP calculation of the compared cases."
+groupe = "Comparaison EF"
+groupe_en = "FE comparison"
+formulaire = false
+
+[[entree]]
+nom = "etude_fj"
+type = "reel"
+defaut = 150.0
+unite = "MPa"
+minimum = 0.0
+minimum_exclu = true
+libelle = "Contrainte nominale fj"
+libelle_en = "Nominal stress fj"
+aide = "Contrainte nominale du joint soudé pour le calcul CODAP des cas comparés."
+aide_en = "Nominal weld joint stress for the CODAP calculation of the compared cases."
+groupe = "Comparaison EF"
+groupe_en = "FE comparison"
+formulaire = false
+
+[[entree]]
+nom = "etude_E"
+type = "reel"
+defaut = 210000.0
+unite = "MPa"
+minimum = 0.0
+minimum_exclu = true
+libelle = "Module E"
+libelle_en = "Modulus E"
+aide = "Module d'élasticité pour le calcul CODAP des cas comparés."
+aide_en = "Elastic modulus for the CODAP calculation of the compared cases."
+groupe = "Comparaison EF"
+groupe_en = "FE comparison"
+formulaire = false

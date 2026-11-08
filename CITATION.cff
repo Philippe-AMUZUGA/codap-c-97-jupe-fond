@@ -1,0 +1,12 @@
+cff-version: "1.2.0"
+message: "Si vous utilisez cette application, citez cette version avec les informations ci-dessous."
+type: software
+title: "CODAP C9.7 Jupe-Fond"
+abstract: "Vérification CODAP C9.7.5 des assemblages jupe-fond et comparaison à une référence EF"
+authors:
+  - family-names: "Amuzuga"
+    given-names: "Philippe"
+version: "0.1.0"
+license: "MIT"
+repository-code: "https://github.com/Philippe-AMUZUGA/codap-c-97-jupe-fond"
+url: "https://github.com/Philippe-AMUZUGA/codap-c-97-jupe-fond/releases/tag/v0.1.0"

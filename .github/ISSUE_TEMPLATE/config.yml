@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Signalement privé de sécurité
+    url: "https://github.com/Philippe-AMUZUGA/codap-c-97-jupe-fond/security/advisories/new"
+    about: Signalez une faille en privé, sans publier ses détails dans une issue.
+  - name: Guide utilisateur
+    url: "https://github.com/Philippe-AMUZUGA/codap-c-97-jupe-fond/blob/HEAD/USER_GUIDE.md"
+    about: Consultez les consignes de lancement, d’export et de désinstallation.

@@ -1,0 +1,52 @@
+# Déclaration de l'application : style de l'interface, écrans, fenêtre et raccourcis.
+# La langue par défaut est celle de `textes/__init__.py` (jeton LANGUE) ; l'utilisateur la change dans le menu Affichage.
+# Le style choisit le fichier de disposition : `un` (ecran_unique.py, un seul écran) ou `parcours` et
+# `onglets` (rail.py et le dossier ecrans/, un rail d'étapes à gauche).
+
+[application]
+style = "onglets"
+
+[fenetre]
+largeur = 1180
+hauteur = 760
+largeur_min = 960
+hauteur_min = 560
+
+# Écrans du rail (styles `parcours` et `onglets`), dans l'ordre. `module` est un fichier de ui/ecrans/,
+# `classe` la classe de l'écran. Chaque écran a ses textes `ecran.<cle>.titre` et `ecran.<cle>.aide.*`.
+[[ecran]]
+cle = "entrees"
+module = "domaine"
+classe = "CasUnique"
+
+[[ecran]]
+cle = "classeur"
+module = "domaine"
+classe = "Classeur"
+
+[[ecran]]
+cle = "etude"
+module = "domaine"
+classe = "Etude"
+
+[[ecran]]
+cle = "aide"
+module = "domaine"
+classe = "Aide"
+
+# Raccourcis clavier. `Mod` désigne Ctrl (Windows, Linux) ou Commande (macOS). Ctrl+1 à Ctrl+9 ouvrent
+# l'écran du rail correspondant et Alt+flèches passent d'une étape à l'autre : ils sont posés par le code.
+[raccourci]
+ouvrir = "Mod+o"
+enregistrer = "Mod+s"
+exporter = "Mod+e"
+quitter = "Mod+q"
+aide = "F1"
+calculer = "F5"
+annuler = "Escape"
+police_plus = "Mod+plus"
+police_moins = "Mod+minus"
+police_normale = "Mod+0"
+journal = "Mod+j"
+etape_precedente = "Alt+Left"
+etape_suivante = "Alt+Right"

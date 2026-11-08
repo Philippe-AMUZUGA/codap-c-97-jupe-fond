@@ -1,0 +1,55 @@
+name: Anomalie
+description: Décrire un défaut reproductible de l’application.
+title: "[Anomalie] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Pour une faille de sécurité, utilisez le signalement privé indiqué dans SECURITY.md.
+        Retirez les noms, chemins personnels et données sensibles des pièces jointes.
+  - type: input
+    id: version
+    attributes:
+      label: Version de l’application
+      description: Recopiez le numéro affiché ou le nom de la Release téléchargée.
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: input
+    id: systeme
+    attributes:
+      label: Système et version
+      description: Indiquez le système, son édition et son architecture.
+      placeholder: "Windows, édition, version, architecture"
+    validations:
+      required: true
+  - type: textarea
+    id: etapes
+    attributes:
+      label: Étapes de reproduction
+      description: Décrivez le lancement, l’écran, les saisies et la commande utilisée.
+      placeholder: "1. Ouvrir l’application.\n2. Choisir l’écran concerné.\n3. Saisir les valeurs de l’exemple."
+    validations:
+      required: true
+  - type: textarea
+    id: resultat
+    attributes:
+      label: Résultat attendu et résultat obtenu
+      description: Copiez aussi le message affiché et le code de sortie du mode -t, si disponible.
+    validations:
+      required: true
+  - type: textarea
+    id: journal
+    attributes:
+      label: Extrait du journal
+      description: Ouvrez le dossier indiqué dans USER_GUIDE.md. Collez un extrait nettoyé, ou indiquez pourquoi aucun journal n’est disponible.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: capture
+    attributes:
+      label: Capture d’écran
+      description: Déposez une image sans données sensibles. Si aucune image n’aide à comprendre le défaut, indiquez-le.
+    validations:
+      required: false
