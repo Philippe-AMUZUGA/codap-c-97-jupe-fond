@@ -34,7 +34,7 @@ jobs:
       PYTHONPATH: "${{ github.workspace }}/src"
     steps:
       - name: Lire la version étiquetée
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           persist-credentials: false
       - name: Préparer Python
