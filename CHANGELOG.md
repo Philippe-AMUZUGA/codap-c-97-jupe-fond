@@ -10,6 +10,8 @@ Chaque version publiée porte une date au format AAAA-MM-JJ. Datez l’en-tête 
 
 - Onglet « Comparaison EF » : l'application ne livre aucune donnée d'étude ; l'utilisateur dépose ses deux fichiers de référence (dossier affiché, ou variable `CODAPC97JUPEFOND_ETUDE`). Deux fichiers synthétiques de 24 cas sont dans `examples/etude_exemple`.
 - `examples/input_EF.xlsx` remplacé par un classeur synthétique.
+- Pillow 13.0.0 (correctifs de sécurité signalés par pip-audit sur 12.3.0).
+- Les deux tests de raccourcis clavier sont ignorés quand la session ne donne aucun focus clavier (CI sous macOS).
 
 ### Ajouté
 

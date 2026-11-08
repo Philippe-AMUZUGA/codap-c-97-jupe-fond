@@ -20,7 +20,7 @@ Le tableau ci-dessous est écrit par `outils/notices_tierces.py` d’après `req
 | openpyxl | 3.1.5 | MIT License | https://openpyxl.readthedocs.io |
 | packaging | 26.2 | Apache-2.0 OR BSD-2-Clause | https://github.com/pypa/packaging |
 | pandas | 3.0.5 | BSD License | https://pandas.pydata.org |
-| pillow | 12.3.0 | MIT-CMU | https://python-pillow.github.io |
+| pillow | 13.0.0 | MIT-CMU | https://python-pillow.github.io |
 | pyparsing | 3.3.2 | MIT | https://github.com/pyparsing/pyparsing/ |
 | python-dateutil | 2.9.0.post0 | BSD License ; Apache Software License | https://github.com/dateutil/dateutil |
 | six | 1.17.0 | MIT License | https://github.com/benjaminp/six |

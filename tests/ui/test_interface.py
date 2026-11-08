@@ -344,6 +344,9 @@ def test_un_raccourci_clavier_lance_son_action(app: Application, dialogues: Dial
     app.deiconify()
     app.update()
     app.focus_force()
+    app.update()
+    if app.focus_get() is None:
+        pytest.skip("pas de focus clavier dans cet environnement (session sans fenêtre active)")
     app.event_generate("<F1>")
     app.update()
     assert [q[0] for q in dialogues.questions] == ["info"], "F1 ouvre le guide rapide"
@@ -394,6 +397,9 @@ def test_les_raccourcis_de_navigation_ouvrent_les_ecrans(app: Application) -> No
     app.deiconify()
     app.update()
     app.focus_force()
+    app.update()
+    if app.focus_get() is None:
+        pytest.skip("pas de focus clavier dans cet environnement (session sans fenêtre active)")
     app.event_generate("<Control-Key-3>")
     app.update()
     assert app.corps.courant == 2
