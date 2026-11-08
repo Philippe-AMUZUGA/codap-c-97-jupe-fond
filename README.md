@@ -8,7 +8,7 @@ Application de bureau Python de Philippe Amuzuga, pour Python 3.11 à 3.13 (64 b
 
 ## Installation
 
-Après publication par l’auteur, téléchargez l’archive `codap-c-97-jupe-fond-v0.1.0.zip` depuis les [Releases](https://github.com/Philippe-AMUZUGA/codap-c-97-jupe-fond/releases), puis extrayez tous les fichiers dans un dossier accessible en écriture. Pour une autre version, prenez l’archive portant son numéro.
+Téléchargez le dépôt (bouton Code, Download ZIP) ou, lorsqu’une version est publiée dans les [Releases](https://github.com/Philippe-AMUZUGA/codap-c-97-jupe-fond/releases), l’archive de cette version, puis extrayez tous les fichiers dans un dossier accessible en écriture.
 
 Python 3.11 à 3.13 (64 bits, avec Tk) doit déjà être installé : [python.org](https://www.python.org/downloads/). Le lanceur n’installe jamais Python. Il crée un environnement local dans `.runtime` et y installe les bibliothèques de `requirements.txt`. La première installation demande une connexion Internet, sauf si des roues sont fournies dans `vendor/wheels` ; les lancements suivants ne téléchargent rien.
 
@@ -104,4 +104,3 @@ Code distribué sous licence MIT, copyright 2026 Philippe Amuzuga : voir [LICENS
 
 Lisez [CONTRIBUTING.md](CONTRIBUTING.md) avant de proposer une modification. Utilisez les [formulaires](https://github.com/Philippe-AMUZUGA/codap-c-97-jupe-fond/issues/new/choose) pour une anomalie ou une idée. Signalez une faille par le canal privé décrit dans [SECURITY.md](SECURITY.md). [CITATION.cff](CITATION.cff) fournit les informations de citation ; le [dépôt](https://github.com/Philippe-AMUZUGA/codap-c-97-jupe-fond) contient les sources.
 
-Le dépôt distant cité dans les liens n'est pas encore publié.

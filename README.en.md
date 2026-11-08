@@ -8,7 +8,7 @@ Python desktop application by Philippe Amuzuga, for Python 3.11 to 3.13 (64-bit,
 
 ## Installation
 
-Download `codap-c-97-jupe-fond-v0.1.0.zip` from [Releases](https://github.com/Philippe-AMUZUGA/codap-c-97-jupe-fond/releases), then extract all files into a writable folder. For another version, choose the archive bearing its number.
+Download the repository (Code button, Download ZIP) or, when a version is published in [Releases](https://github.com/Philippe-AMUZUGA/codap-c-97-jupe-fond/releases), the archive of that version, then extract all files into a writable folder.
 
 Python 3.11 to 3.13 (64-bit, with Tk) must already be installed: [python.org](https://www.python.org/downloads/). The launcher never installs Python. It creates a local environment in `.runtime` and installs the libraries of `requirements.txt` there. The first installation needs an Internet connection unless wheels are supplied in `vendor/wheels`; later launches download nothing.
 
@@ -102,4 +102,3 @@ Code distributed under the MIT license, copyright 2026 Philippe Amuzuga: see [LI
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) before proposing a change. Use the [forms](https://github.com/Philippe-AMUZUGA/codap-c-97-jupe-fond/issues/new/choose) for a bug or an idea. Report a vulnerability through the private channel described in [SECURITY.md](SECURITY.md). [CITATION.cff](CITATION.cff) provides citation information; the [repository](https://github.com/Philippe-AMUZUGA/codap-c-97-jupe-fond) contains the sources.
 
-The remote repository referenced by the links is not yet published.
