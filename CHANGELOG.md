@@ -28,6 +28,7 @@ Chaque version publiée porte une date au format AAAA-MM-JJ. Datez l’en-tête 
 
 - Table C26 : terme en x³ de C9.A6.5.2.6-9 et -11 à +0,598 (la transcription portait −0,598).
 - Table C92 : constante −0,039 pour δ2 = 1, alignée sur les calculs de référence ; seule σmy3 change, aucun verdict modifié sur les configurations essayées.
+- Tests des raccourcis clavier : modificateur Commande sous macOS, Ctrl ailleurs (la CI macOS échouait).
 
 ## [0.1.0] - 2026-10-20
 

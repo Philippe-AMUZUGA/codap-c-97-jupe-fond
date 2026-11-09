@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import gc
 import logging
+import sys
 import time
 import tkinter as tk
 from collections.abc import Iterator
@@ -31,6 +32,9 @@ from codap_c_97_jupe_fond.ui.app import Application
 from codap_c_97_jupe_fond.ui.dialogues import DialoguesAutomatiques
 from codap_c_97_jupe_fond.ui.panneaux import PanneauResultats
 from codap_c_97_jupe_fond.ui.widgets import ScrollableFrame
+
+# Modificateur des raccourcis : Commande sur macOS, Ctrl ailleurs (voir `ui/menus.py`).
+MOD = "Command" if sys.platform == "darwin" else "Control"
 
 
 @pytest.fixture
@@ -350,7 +354,7 @@ def test_un_raccourci_clavier_lance_son_action(app: Application, dialogues: Dial
     app.event_generate("<F1>")
     app.update()
     assert [q[0] for q in dialogues.questions] == ["info"], "F1 ouvre le guide rapide"
-    app.event_generate("<Control-plus>")
+    app.event_generate(f"<{MOD}-plus>")
     app.update()
     assert app.prefs.taille_police == 110
 
@@ -400,7 +404,7 @@ def test_les_raccourcis_de_navigation_ouvrent_les_ecrans(app: Application) -> No
     app.update()
     if app.focus_get() is None:
         pytest.skip("pas de focus clavier dans cet environnement (session sans fenêtre active)")
-    app.event_generate("<Control-Key-3>")
+    app.event_generate(f"<{MOD}-Key-3>")
     app.update()
     assert app.corps.courant == 2
     app.event_generate("<Alt-Left>")
