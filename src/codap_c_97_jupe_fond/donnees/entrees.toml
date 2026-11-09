@@ -1,6 +1,6 @@
 # Entrées de l'application : les 35 grandeurs du programme d'origine (descriptions de `io_excel.INPUT_COLUMNS`),
 # le type de fond et la situation, puis les réglages des écrans Classeur et Étude (`formulaire = false`).
-# Valeurs de départ : première configuration de l'étude (e = 5 mm, D1 = H = 700 mm), convertie par `Preprocess`.
+# Valeurs de départ : configuration de départ (e = 5 mm, D1 = H = 700 mm), convertie par `Preprocess`.
 # Seules bornes posées : la stricte positivité que le programme d'origine exige (conditions C9.7.2) et celle des
 # réglages du rejeu ; aucune autre borne n'est écrite par la source.
 
@@ -227,8 +227,8 @@ defaut = 21000000.0
 unite = "N.mm"
 libelle = "Moment MZ"
 libelle_en = "Moment MZ"
-aide = "Moment global de flexion au droit de la section Z-Z : F_vent × bras (bras = 2H dans l'étude)."
-aide_en = "Global bending moment at section Z-Z: F_wind × lever arm (2H in the study)."
+aide = "Moment global de flexion au droit de la section Z-Z : F_vent × bras (2H par défaut pour un classeur de géométrie EF)."
+aide_en = "Global bending moment at section Z-Z: F_wind × lever arm (2H by default for an FE geometry workbook)."
 groupe = "Efforts et pression"
 groupe_en = "Loads and pressure"
 
@@ -359,8 +359,8 @@ defaut = 210000.0
 unite = "MPa"
 libelle = "Module E"
 libelle_en = "Modulus E"
-aide = "Module d'élasticité à la température de calcul (210 000 MPa dans l'étude)."
-aide_en = "Elastic modulus at design temperature (210,000 MPa in the study)."
+aide = "Module d'élasticité à la température de calcul."
+aide_en = "Elastic modulus at design temperature."
 groupe = "Matériau et sécurité"
 groupe_en = "Material and safety"
 
@@ -383,8 +383,8 @@ defaut = 150.0
 unite = "MPa"
 libelle = "Contrainte nominale f"
 libelle_en = "Nominal stress f"
-aide = "Contrainte nominale de calcul du métal de base (150 MPa dans l'étude)."
-aide_en = "Nominal design stress of the base metal (150 MPa in the study)."
+aide = "Contrainte nominale de calcul du métal de base."
+aide_en = "Nominal design stress of the base metal."
 groupe = "Matériau et sécurité"
 groupe_en = "Material and safety"
 
@@ -395,8 +395,8 @@ defaut = 150.0
 unite = "MPa"
 libelle = "Contrainte nominale fj"
 libelle_en = "Nominal stress fj"
-aide = "Contrainte nominale de calcul du joint soudé (150 MPa dans l'étude)."
-aide_en = "Nominal design stress of the welded joint (150 MPa in the study)."
+aide = "Contrainte nominale de calcul du joint soudé."
+aide_en = "Nominal design stress of the welded joint."
 groupe = "Matériau et sécurité"
 groupe_en = "Material and safety"
 
@@ -503,93 +503,4 @@ aide = "Pour un classeur de géométrie EF : MZ = F_vent × (ce rapport × H)."
 aide_en = "For an FE geometry workbook: MZ = F_wind × (this ratio × H)."
 groupe = "Classeur"
 groupe_en = "Workbook"
-formulaire = false
-
-[[entree]]
-nom = "etude_fond"
-type = "choix"
-defaut = "korbbogen"
-choix = ["korbbogen", "elliptique"]
-etiquettes = { korbbogen = "Korbbogen", elliptique = "Elliptique" }
-etiquettes_en = { korbbogen = "Korbbogen", elliptique = "Elliptical" }
-libelle = "Type de fond"
-libelle_en = "Head type"
-aide = "Fond du calcul : Korbbogen ou elliptique. Le fond GRC des modèles EF n'a pas de coefficients en raccordement C : le traiter ainsi n'a aucune valeur réglementaire (C9.7.2.1 réserve le GRC au type AB)."
-aide_en = "Head used in the calculation: Korbbogen or elliptical. The GRC head of the FE models has no coefficients for a type C joint: treating it this way has no code value (C9.7.2.1 restricts GRC to type AB)."
-groupe = "Comparaison EF"
-groupe_en = "FE comparison"
-formulaire = false
-
-[[entree]]
-nom = "etude_bras"
-type = "reel"
-defaut = 2.0
-minimum = 0.0
-minimum_exclu = true
-libelle = "Bras de levier / H"
-libelle_en = "Lever arm / H"
-aide = "MZ = F_vent × (ce rapport × H) ; 2 par défaut."
-aide_en = "MZ = F_wind × (this ratio × H); 2 by default."
-groupe = "Comparaison EF"
-groupe_en = "FE comparison"
-formulaire = false
-
-[[entree]]
-nom = "etude_seuil"
-type = "reel"
-defaut = 225.0
-unite = "MPa"
-minimum = 0.0
-minimum_exclu = true
-libelle = "Seuil EF"
-libelle_en = "FE threshold"
-aide = "Configuration résistante selon l'EF si la contrainte de Tresca linéarisée maximale reste sous ce seuil (1,5 f = 225 MPa)."
-aide_en = "A configuration is resistant according to FE if the maximum linearised Tresca stress stays below this threshold (1.5 f = 225 MPa)."
-groupe = "Comparaison EF"
-groupe_en = "FE comparison"
-formulaire = false
-
-[[entree]]
-nom = "etude_f"
-type = "reel"
-defaut = 150.0
-unite = "MPa"
-minimum = 0.0
-minimum_exclu = true
-libelle = "Contrainte nominale f"
-libelle_en = "Nominal stress f"
-aide = "Contrainte nominale du métal de base pour le calcul CODAP des cas comparés."
-aide_en = "Nominal base metal stress for the CODAP calculation of the compared cases."
-groupe = "Comparaison EF"
-groupe_en = "FE comparison"
-formulaire = false
-
-[[entree]]
-nom = "etude_fj"
-type = "reel"
-defaut = 150.0
-unite = "MPa"
-minimum = 0.0
-minimum_exclu = true
-libelle = "Contrainte nominale fj"
-libelle_en = "Nominal stress fj"
-aide = "Contrainte nominale du joint soudé pour le calcul CODAP des cas comparés."
-aide_en = "Nominal weld joint stress for the CODAP calculation of the compared cases."
-groupe = "Comparaison EF"
-groupe_en = "FE comparison"
-formulaire = false
-
-[[entree]]
-nom = "etude_E"
-type = "reel"
-defaut = 210000.0
-unite = "MPa"
-minimum = 0.0
-minimum_exclu = true
-libelle = "Module E"
-libelle_en = "Modulus E"
-aide = "Module d'élasticité pour le calcul CODAP des cas comparés."
-aide_en = "Elastic modulus for the CODAP calculation of the compared cases."
-groupe = "Comparaison EF"
-groupe_en = "FE comparison"
 formulaire = false

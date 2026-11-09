@@ -1,8 +1,8 @@
 """
-Génère les exemples synthétiques de `examples/` : deux classeurs (entrées CODAP et géométrie EF) et un dossier d'étude.
+Génère les exemples synthétiques de `examples/` : deux classeurs (entrées CODAP et géométrie EF).
 
 Les valeurs sont inventées (aucune provenance, aucun sens mécanique pour les contraintes) : elles servent à montrer
-le format des fichiers et à exercer les écrans. Reproductible : aucune part d'aléatoire. La ligne 0 du classeur
+le format des classeurs et à exercer les écrans. Reproductible : aucune part d'aléatoire. La ligne 0 du classeur
 `input_CODAP.xlsx` est le cas de référence gravé dans les tests du programme d'origine.
 
 Lancer depuis la racine du dépôt : `python outils/generer_exemples.py`.
@@ -14,19 +14,13 @@ import math
 import sys
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 
 RACINE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RACINE / "src"))
 
-from codap_c_97_jupe_fond.core import calculs  # noqa: E402
-
 DIAMETRES = (1000, 1500, 2000, 2500, 3000, 3500)
 EPAISSEURS = (8, 12, 16, 20)
-ZONES = [f"{z}_{c}" for z in ("Z1", "Z2", "Z3") for c in ("R",)] + [
-    f"{z}_{c}" for z in ("Z1", "Z2", "Z3") for c in ("L",)
-]
 
 
 #: Ligne 0 de `input_CODAP.xlsx` : le cas de référence des tests du programme d'origine (`core/source/tests`).
@@ -65,47 +59,9 @@ def geometries() -> pd.DataFrame:
     return frame
 
 
-def contraintes_ef(g: pd.DataFrame) -> pd.DataFrame:
-    """Contraintes unitaires inventées : croissent avec D1/e, avec un écart fixe entre zones et entre côtés."""
-    rapport = (g["D1"] / g["e"]).to_numpy(float)
-    sortie = pd.DataFrame(index=g.index)
-    poids = {"P": 1.0, "T": 0.12, "W": 0.02}
-    for jeu, w in poids.items():
-        for k, zone in enumerate(ZONES):
-            cote = 1.0 + 0.004 * (k // 3)
-            sortie[f"{jeu}_TRESCA_LIN_{zone}"] = (
-                w * (0.9 - 0.08 * (k % 3)) * cote * (0.5 * rapport + 0.0002 * rapport**2)
-            )
-        sortie[f"{jeu}_TRESCA_LIN_Check_L"] = 0.5 * sortie[f"{jeu}_TRESCA_LIN_Z1_L"]
-    return sortie.round(4)
-
-
 def main() -> None:
     g = geometries()
-    ef = pd.concat([g, contraintes_ef(g)], axis=1)
-    sortie = RACINE / "examples" / "etude_exemple"
-    sortie.mkdir(parents=True, exist_ok=True)
-    ef.to_csv(sortie / calculs.FICHIER_EF)
-
-    sigma = calculs._contrainte_ef(ef)
-    classe_ef = np.where(sigma <= 225.0, "R", "D")
-    sigma_regle = sigma * (1.0 + 0.03 * np.sin(np.arange(len(ef))))
-    classe_regle = np.where(sigma_regle <= 225.0, "R", "D")
-    contingence = pd.DataFrame(
-        {
-            "index": ef.index,
-            "e": ef["e"].astype(float),
-            "D1": ef["D1"].astype(float),
-            "H": ef["H"].astype(float),
-            "sigma_ref": sigma,
-            "classe_EF": classe_ef,
-            "sigma_regle": sigma_regle,
-            "classe_regle": classe_regle,
-            "zone_max": "Z1_L",
-        }
-    ).set_index("index")
-    contingence.to_csv(sortie / calculs.FICHIER_CONTINGENCE)
-
+    g = geometries()
     # classeur de géométrie EF : le format d'entrée de `Preprocess`
     classeur = g[["e", "D1", "ALPHA", "H", "R1", "R2", "H3", "D3"]].copy()
     classeur.insert(3, "Pression", 1.0)
@@ -114,10 +70,7 @@ def main() -> None:
     classeur.index.name = None
     classeur.to_excel(RACINE / "examples" / "input_EF.xlsx", sheet_name="input_EF")
     classeur_codap().to_excel(RACINE / "examples" / "input_CODAP.xlsx", sheet_name="input_CODAP")
-    print(
-        f"{len(ef)} cas écrits ; classeur input_EF.xlsx régénéré ; {int((sigma <= 225).sum())} résistants sous 225 MPa"
-    )
-    assert math.isfinite(float(sigma.max()))
+    print(f"{len(g)} configurations EF et {NOMBRE_CAS_CODAP} cas CODAP écrits")
 
 
 if __name__ == "__main__":

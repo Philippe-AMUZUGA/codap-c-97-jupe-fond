@@ -24,12 +24,6 @@ DOUBLE_TRAIT = chr(45) * 2
 
 
 @pytest.fixture(autouse=True)
-def etude_synthetique(monkeypatch: pytest.MonkeyPatch) -> None:
-    """La comparaison EF lit, dans les tests, les deux fichiers synthétiques de `examples/etude_exemple`."""
-    monkeypatch.setenv("CODAPC97JUPEFOND_ETUDE", str(RACINE / "examples" / "etude_exemple"))
-
-
-@pytest.fixture(autouse=True)
 def donnees_isolees(tmp_path: Path) -> Iterator[None]:
     """Préférences et journaux vont sous le dossier temporaire du test : jamais dans les données réelles."""
     avant = chemins.redirection()

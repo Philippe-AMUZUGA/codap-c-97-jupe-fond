@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "codap-c-97-jupe-fond"
 dynamic = ["version"]
-description = "Vérification CODAP C9.7.5 des assemblages jupe-fond et comparaison à une référence EF"
+description = "Vérification CODAP C9.7.5 des assemblages jupe-fond"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"

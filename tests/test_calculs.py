@@ -1,4 +1,4 @@
-"""Adaptateur du domaine : cas unique, classeur, comparaison EF (le calcul est celui du programme d'origine)."""
+"""Adaptateur du domaine : cas unique, classeur (le calcul est celui du programme d'origine)."""
 
 from __future__ import annotations
 
@@ -109,68 +109,3 @@ def test_un_fichier_qui_n_est_pas_un_classeur_est_refuse(tmp_path: Path) -> None
         calculs.traiter_classeur(faux)
     with pytest.raises(ErreurCalcul):
         calculs.traiter_classeur(tmp_path / "absent.csv")
-
-
-@pytest.fixture
-def dossier_etude(monkeypatch: pytest.MonkeyPatch) -> Path:
-    """Les deux fichiers synthétiques de `examples/etude_exemple`, désignés comme dossier d'étude."""
-    dossier = RACINE / "examples" / "etude_exemple"
-    monkeypatch.setenv(calculs.VARIABLE_ETUDE, str(dossier))
-    return dossier
-
-
-def test_le_rejeu_donne_les_deux_matrices_et_leurs_metriques(dossier_etude: Path) -> None:
-    resultat = calculs.rejouer()
-    matrices = calculs.matrices_du_resultat(resultat)
-    n = matrices["regle"]["N"]
-    assert n == matrices["codap"]["N"] == 24
-    for methode in ("codap", "regle"):
-        m = matrices[methode]
-        assert m["TP"] + m["FN"] + m["FP"] + m["TN"] == n
-    assert len(resultat.figures) == 1
-    assert len(resultat.tableaux[1].lignes) == n
-
-
-def test_d_autres_reglages_changent_codap_mais_pas_la_regle(dossier_etude: Path) -> None:
-    de_base = calculs.matrices_du_resultat(calculs.rejouer())
-    autre = calculs.matrices_du_resultat(calculs.rejouer(bras=1.0))
-    cles = ("TP", "FN", "FP", "TN")
-    assert {k: autre["regle"][k] for k in cles} == {k: de_base["regle"][k] for k in cles}
-    assert (
-        autre["codap"]["TP"] >= de_base["codap"]["TP"]
-    )  # un bras plus court réduit MZ : CODAP accepte au moins autant
-
-
-def test_sans_donnees_le_rejeu_dit_ou_les_deposer(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-    monkeypatch.setenv(calculs.VARIABLE_ETUDE, str(tmp_path / "vide"))
-    with pytest.raises(ErreurCalcul) as erreur:
-        calculs.rejouer()
-    assert calculs.FICHIER_EF in str(erreur.value)
-    assert str(tmp_path / "vide") in str(erreur.value)
-
-
-def test_des_donnees_incoherentes_sont_refusees(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-    import shutil
-
-    for nom in (calculs.FICHIER_EF, calculs.FICHIER_CONTINGENCE):
-        shutil.copy2(RACINE / "examples" / "etude_exemple" / nom, tmp_path / nom)
-    contingence = tmp_path / calculs.FICHIER_CONTINGENCE
-    contingence.write_text(contingence.read_text(encoding="utf-8").replace("84.2", "99.9", 1), encoding="utf-8")
-    monkeypatch.setenv(calculs.VARIABLE_ETUDE, str(tmp_path))
-    with pytest.raises(ErreurCalcul):
-        calculs.rejouer()
-
-
-@pytest.mark.parametrize("reglage", [{"fond": "grc"}, {"bras": 0.0}, {"seuil": -1.0}, {"E": float("nan")}])
-def test_des_reglages_de_rejeu_invalides_sont_refuses(reglage: dict) -> None:
-    with pytest.raises(ErreurCalcul):
-        calculs.rejouer(**reglage)
-
-
-def test_matrice_et_cas_degeneres() -> None:
-    import numpy as np
-
-    m = calculs.matrice(np.array([True, False]), np.array([True, False]))
-    assert (m["TP"], m["FN"], m["FP"], m["TN"], m["MCC"]) == (1, 0, 0, 1, 1.0)
-    vide = calculs.matrice(np.array([True, True]), np.array([True, True]))
-    assert vide["MCC"] != vide["MCC"]  # NaN : un seul classement, MCC indéfini

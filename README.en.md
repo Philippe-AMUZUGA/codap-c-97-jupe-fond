@@ -1,6 +1,6 @@
 # CODAP C9.7 Jupe-Fond
 
-CODAP C9.7.5 verification of skirt-head assemblies and comparison with an FE reference.
+CODAP C9.7.5 verification of skirt-head assemblies.
 
 Python desktop application by Philippe Amuzuga, for Python 3.11 to 3.13 (64-bit, with Tk).
 
@@ -49,34 +49,25 @@ The application opens no network connection. Only the installation of the librar
 
 ## What the application does
 
-Four tabs, opened in any order (Ctrl+1 to Ctrl+4):
+Three tabs, opened in any order (Ctrl+1 to Ctrl+3):
 
 1. **Single case**: the 35 quantities of C9.7.5, the head type (Korbbogen or elliptical) and the situation; Calculate (F5) gives R1 to R7, the Cij coefficients with δ1, δ2 and λ1, the twelve stresses of the three sections, the three criteria, the utilisation ratio and the verdict "TENUE : OK" or "TENUE : non-OK" for the compressed side, the tensile side and the envelope; a configuration outside the C9.A6 domain or the type C joint conditions is flagged. Export to xlsx, csv and projet.json (Ctrl+E).
 2. **Workbook**: an `input_CODAP.xlsx` workbook calculated as a batch, or an FE geometry workbook (`input_EF.xlsx`) first converted by the original program chain; row-by-row summary, then `output_CODAP.xlsx` and `journal_CODAP.txt`.
-3. **FE comparison**: from your own FE reference files, two confusion matrices against FE, CODAP C9.7.5 and a compared rule, with their metrics; export to xlsx, csv and png.
-4. **Help and references**: scope, mechanical conventions, validation and references.
+3. **Help and references**: scope, mechanical conventions, validation and references.
 
 ![Single case](docs/images/fenetre_1_clair.png)
 
-Screenshots of the four tabs, in light and dark themes, are in [docs/images](docs/images).
+![Workbook](docs/images/fenetre_2_clair.png)
+
+Screenshots of the three tabs, in light and dark themes, are in [docs/images](docs/images).
 
 ## Mechanical conventions
 
 - FZ is positive in compression; no pressure end effect is added to FZ (it is carried by C71·R1).
-- MZ = F_wind × lever arm; the lever arm is 2H by default in the FE comparison and can be set (Workbook and FE comparison tabs).
+- MZ = F_wind × lever arm; for an FE geometry workbook, the lever arm is 2H by default and can be set in the Workbook tab.
 - The GRC head of the FE models is treated as a Korbbogen (or elliptical) head: this has no code value, as C9.7.2.1 restricts GRC heads to type AB joints.
 - The test situation has no thermal effects (R5 = R6 = R7 = 0).
-- Defaults in the FE comparison: f = fj = 150 MPa, E = 210,000 MPa, FE threshold 225 MPa (1.5 f).
 - Scope: complete C9.7.5; C9.7.6 in the calculation library, not exposed; C9.7.7 out of scope; type AB joint not implemented.
-
-## Comparing with an FE reference
-
-The application ships no study data: you bring your own. Place two CSV files in the folder shown by the "FE comparison" tab (by default, the `etude` subfolder of the application data folder), or point to another folder with the `CODAPC97JUPEFOND_ETUDE` environment variable:
-
-- `ef_unitaires.csv`: one row per configuration, with the columns `index`, `e`, `D1`, `H`, `ALPHA`, `R1`, `R2`, `H3`, `D3` (geometry) and, for each of the three unit cases `P` (pressure), `T` (external force) and `W` (wind), the linearised Tresca stresses `{P,T,W}_TRESCA_LIN_{Z1,Z2,Z3}_{R,L}`;
-- `contingency_per_case.csv`: `index`, `sigma_ref` (recomputed reference stress), `classe_regle` (`R` resistant, `D` failing) for the rule you compare.
-
-The `examples/etude_exemple` folder holds two synthetic files of 24 cases, with invented values and no mechanical meaning: they show the format and let you try the tab (`python outils/generer_exemples.py` regenerates them). The "Run the comparison" button combines the three unit cases (1.2 MPa, 15 kN and 20 kN), takes the maximum linearised Tresca stress of zones Z1 to Z3 on both sides, compares it with a threshold (225 MPa = 1.5 f by default), calculates the same configurations with C9.7.5 and shows two confusion matrices against FE with their metrics. Positive: configuration resistant according to FE.
 
 ## Validation of the calculation
 

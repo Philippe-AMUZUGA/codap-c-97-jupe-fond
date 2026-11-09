@@ -13,8 +13,6 @@ Le calcul C9.7.5 n'est pas traduit : le programme d'origine (paquet `codap_c97`,
 | Critères C9.7.5-31 à -52 et leurs équations | `run_c975`, `sides[k].adm`, `_adm_obj.equations` | vérifié | idem |
 | Classeur `input_CODAP.xlsx` calculé par lot, `output_CODAP.xlsx` | `io_excel.read_input_codap`, `run_c975`, `io_excel.write_output_codap` | vérifié | `tests/test_calculs.py` (117 configurations) et tests d'origine `test_io_and_pipeline` |
 | Conversion d'une géométrie EF | `Preprocess.convert_ef_to_codap` | vérifié | tests d'origine `test_io_and_pipeline` ; `tests/test_calculs.py` |
-| Comparaison à une référence EF et matrices de confusion | chaîne de rejeu : géométrie EF, `Preprocess`, `run_c975` ; référence EF recalculée depuis les trois jeux unitaires du dossier d'étude de l'utilisateur | vérifié | `tests/test_calculs.py` (fichiers synthétiques `examples/etude_exemple`), mode d'essai `-t` |
-| Fichiers de référence EF | `ef_unitaires.csv` et `contingency_per_case.csv`, fournis par l'utilisateur | vérifié | contraintes de référence contrôlées contre `sigma_ref` à rtol 1e-6 à chaque comparaison |
 | C9.7.6 (stabilité de la jupe) | `codap_c97/stability.py` | non intégrée | disponible dans la bibliothèque et couverte par ses tests d'origine, non exposée dans l'interface (hors du périmètre demandé) |
 | C9.7.7, raccordement AB | absents du programme d'origine | non traduit | hors périmètre du programme d'origine |
 

@@ -16,7 +16,6 @@ from __future__ import annotations
 import gc
 import json
 import logging
-import os
 import platform
 import shutil
 import socket
@@ -230,20 +229,6 @@ def _enregistrer_une_image(app: Any, dossier: Path) -> int:
 
 
 def _interface(contexte: Contexte) -> str:
-    """Joue l'interface ; l'écran de comparaison EF lit les fichiers synthétiques de `examples/etude_exemple`."""
-    exemple = chemins.chemin_exemple()
-    synthetique = exemple.parent / "etude_exemple" if exemple else None
-    pose = synthetique is not None and synthetique.is_dir() and not os.environ.get(calculs.VARIABLE_ETUDE)
-    if pose:
-        os.environ[calculs.VARIABLE_ETUDE] = str(synthetique)
-    try:
-        return _interface_jouee(contexte)
-    finally:
-        if pose:
-            os.environ.pop(calculs.VARIABLE_ETUDE, None)
-
-
-def _interface_jouee(contexte: Contexte) -> str:
     from .ui.app import Application, preparer_processus
     from .ui.dialogues import DialoguesAutomatiques
 

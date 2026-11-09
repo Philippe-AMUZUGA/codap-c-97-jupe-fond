@@ -24,7 +24,6 @@ from __future__ import annotations
 import argparse
 import contextlib
 import importlib
-import shutil
 import sys
 import tempfile
 import time
@@ -120,9 +119,6 @@ def principal(argv: list[str] | None = None) -> int:
     ecrits: list[Path] = []
     with tempfile.TemporaryDirectory(prefix=f"{PAQUET}_captures_", ignore_cleanup_errors=True) as temporaire:
         chemins.rediriger(temporaire)
-        # l'onglet de comparaison EF est photographié avec les fichiers synthétiques du dépôt
-        calculs = _module("core.calculs")
-        shutil.copytree(RACINE / "examples" / "etude_exemple", calculs.dossier_etude())
         # le dossier d'export affiché sur l'écran Export est un chemin neutre, jamais le dossier personnel
         reglages = _module("systeme.preferences")
         reglages.enregistrer(reglages.Preferences(dossier_export=str(Path(Path.home().anchor) / "Exports")))

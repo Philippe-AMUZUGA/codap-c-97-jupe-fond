@@ -646,8 +646,8 @@ def test_l_essai_joue_la_tache_propre_de_chaque_etape(app: Application) -> None:
         return True
 
     ecran.lancer = lancer  # type: ignore[method-assign]
-    # les écrans Classeur et Étude ont leur propre tâche, plus l'étape remplacée ici
-    assert jouer_les_etapes(app) == 3 and faites == ["analyse"]
+    # l'écran Classeur a sa propre tâche, plus l'étape remplacée ici
+    assert jouer_les_etapes(app) == 2 and faites == ["analyse"]
 
     def echouer() -> bool:
         app.executer(lambda _annulation, _avancer: 1 / 0, nom="analyse", au_succes=faites.append)

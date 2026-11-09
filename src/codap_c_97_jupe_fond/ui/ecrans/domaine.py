@@ -1,9 +1,9 @@
 """
-Écrans du domaine : cas unique, classeur, comparaison EF, aide.
+Écrans du domaine : cas unique, classeur, aide.
 
 Chaque écran garde son propre résultat (un calcul d'un écran n'invalide jamais celui d'un autre) dans
-`app.resultats_ecrans`, qui survit à la reconstruction de la fenêtre (changement de langue). Les réglages des écrans
-Classeur et Étude sont des entrées du schéma déclarées `formulaire = false` : ils sont saisis ici, validés par le
+`app.resultats_ecrans`, qui survit à la reconstruction de la fenêtre (changement de langue). Les réglages de l'écran
+Classeur sont des entrées du schéma déclarées `formulaire = false` : ils sont saisis ici, validés par le
 même schéma que le formulaire et gardés dans un projet enregistré. Aucun écran ne calcule : il appelle `core.calculs`
 dans un fil par `app.executer`, puis affiche.
 """
@@ -16,7 +16,7 @@ from pathlib import Path
 from tkinter import ttk
 from typing import TYPE_CHECKING, Any
 
-from ...core import calculs, export
+from ...core import calculs
 from ...core.erreurs import ErreurApplication, ErreurSaisie
 from ...core.resultat import Resultat
 from ...core.schema import Champ, valider
@@ -29,10 +29,8 @@ from .base import Ecran
 if TYPE_CHECKING:
     from ..app import Application
 
-__all__ = ["Aide", "CasUnique", "Classeur", "Etude", "ReglagesCompacts"]
+__all__ = ["Aide", "CasUnique", "Classeur", "ReglagesCompacts"]
 
-NOM_EXPORT_ETUDE = "comparaison_EF"
-FORMATS_ETUDE = ("xlsx", "csv", "png")
 LARGEUR_TEXTE = 860
 CHAMPS_PAR_RANGEE = 3
 
@@ -231,7 +229,7 @@ class CasUnique(Ecran):
 
 
 class _EcranAReglages(Ecran):
-    """Socle des écrans Classeur et Étude : une carte de réglages, des boutons, un résultat propre."""
+    """Socle de l'écran Classeur : une carte de réglages, des boutons, un résultat propre."""
 
     PREFIXE = ""
 
@@ -369,97 +367,11 @@ class Classeur(_EcranAReglages):
             self.poser_chemin(etat["fichier"])
 
 
-class Etude(_EcranAReglages):
-    """Comparaison à une référence EF fournie par l'utilisateur : les deux matrices de confusion contre l'EF."""
-
-    CLE = "etude"
-    PREFIXE = "etude_"
-
-    def construire(self, corps: ttk.Frame) -> None:
-        panneau = Panneau(corps, self.app)
-        self.poser_reglages(panneau, 0, "etude.explication")
-        rangee = ttk.Frame(panneau)
-        rangee.grid(row=1, column=0, sticky="w", pady=(10, 0))
-        panneau.bouton(rangee, "etude.rejouer", self.lancer, principal=True, row=0, column=0, padx=(0, 8))
-        panneau.bouton(rangee, "etude.exporter", self.exporter, row=0, column=1)
-        self.parite = ttk.Label(
-            panneau,
-            text=t("etude.dossier", dossier=calculs.dossier_etude_affiche()),
-            style="Doux.TLabel",
-            wraplength=LARGEUR_TEXTE,
-            justify="left",
-        )
-        self.parite.grid(row=2, column=0, sticky="w", pady=(8, 0))
-        self.ajouter(panneau)
-        self.ajouter(PanneauResultatPropre(corps, self.app, "etude"))
-
-    def lancer(self) -> bool:
-        """Rejoue les cas du dossier d'étude avec les réglages affichés."""
-        r = self.valider_reglages()
-        if r is None:
-            return False
-        self.app.executer(
-            lambda annulation, avancer: calculs.rejouer(
-                r["etude_fond"],
-                r["etude_bras"],
-                r["etude_seuil"],
-                r["etude_f"],
-                r["etude_fj"],
-                r["etude_E"],
-                annulation,
-                avancer,
-            ),
-            nom=t("etude.nom"),
-            au_succes=self._fini,
-        )
-        return True
-
-    def _fini(self, resultat: Resultat) -> None:
-        _resultats(self.app)[self.CLE] = resultat
-        self.rafraichir()
-        self.defilement.montrer(self.parite)  # les matrices viennent en haut de la zone visible
-        self.app.info(t("etude.fait"))
-
-    def rafraichir(self) -> None:
-        super().rafraichir()
-        self.parite.configure(text=t("etude.dossier", dossier=calculs.dossier_etude_affiche()), style="Doux.TLabel")
-
-    def exporter(self) -> None:
-        resultat = _resultats(self.app).get(self.CLE)
-        if resultat is None:
-            self.app.banniere.afficher(t("etude.pas_de_resultat"), "alerte")
-            return
-        dossier = self.choisir_dossier()
-        if not dossier:
-            return
-        try:
-            existants = export.fichiers_existants(resultat, dossier, NOM_EXPORT_ETUDE, FORMATS_ETUDE)
-        except ErreurApplication as erreur:
-            self.app.erreur(erreur)
-            return
-        if existants and not self.app.confirmer(t("export.confirmer_ecraser", noms=", ".join(existants))):
-            return
-        self.app.executer(
-            lambda annulation, _avancer: export.exporter(
-                resultat,
-                dossier,
-                nom=NOM_EXPORT_ETUDE,
-                formats=FORMATS_ETUDE,
-                ecraser=bool(existants),
-                annulation=annulation,
-            ),
-            nom=t("export.nom_tache"),
-            au_succes=lambda ecrits: self.app.info(
-                t("export.fait", n=len(ecrits), dossier=diagnostic.anonymiser(dossier))
-            ),
-        )
-
-
 class Aide(Ecran):
-    """Périmètre, conventions mécaniques, validation, étude, références et licence."""
+    """Périmètre, conventions mécaniques, validation, références et licence."""
 
     CLE = "aide"
-    RUBRIQUES = ("perimetre", "conventions", "validation", "etude", "references", "apropos")
+    RUBRIQUES = ("perimetre", "conventions", "validation", "references", "apropos")
 
     def construire(self, corps: ttk.Frame) -> None:
         panneau = Panneau(corps, self.app)

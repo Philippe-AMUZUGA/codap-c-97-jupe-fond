@@ -1,4 +1,4 @@
-"""Socle commun des écrans : titre, trois repères d'aide, corps défilant, panneaux gérés, verrou et saisie propres."""
+"""Socle commun des écrans : titre, corps défilant, panneaux gérés, verrou et saisie propres."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any
 from ...textes import t
 from ..formulaire import Formulaire
 from ..panneaux import Panneau
-from ..widgets import ScrollableFrame, aide_de_l_ecran
+from ..widgets import ScrollableFrame
 
 if TYPE_CHECKING:
     from ..app import Application
@@ -22,7 +22,7 @@ class Ecran(ttk.Frame):
 
     Pour ajouter un écran : écrire une sous-classe dans un nouveau fichier de ce dossier (`CLE`, et
     `construire` qui pose des panneaux dans `corps`), la déclarer dans `donnees/application.toml`, puis
-    ajouter dans les deux fichiers de textes `rail.<cle>` et `ecran.<cle>.titre` et `ecran.<cle>.aide.*`.
+    ajouter dans les deux fichiers de textes `rail.<cle>` et `ecran.<cle>.titre`.
 
     Verrou d'une étape (style parcours), du plus simple au plus fin :
       `EXIGE_RESULTAT` : fermée tant qu'aucun calcul n'a abouti ;
@@ -50,14 +50,13 @@ class Ecran(ttk.Frame):
         super().__init__(parent)
         self.app = app
         self.panneaux: list[Panneau] = []
-        self.grid_rowconfigure(2, weight=1)
+        self.grid_rowconfigure(1, weight=1)
         self.grid_columnconfigure(0, weight=1)
         ttk.Label(self, text=t(f"ecran.{self.CLE}.titre"), style="Titre.TLabel").grid(
             row=0, column=0, sticky="w", pady=(0, 8)
         )
-        aide_de_l_ecran(self, f"ecran.{self.CLE}.aide").grid(row=1, column=0, sticky="ew", pady=(0, 10))
         self.defilement = ScrollableFrame(self)
-        self.defilement.grid(row=2, column=0, sticky="nsew")
+        self.defilement.grid(row=1, column=0, sticky="nsew")
         self.corps = self.defilement.interieur
         self.corps.grid_columnconfigure(0, weight=1)
         self.construire(self.corps)

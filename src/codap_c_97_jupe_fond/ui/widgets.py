@@ -18,11 +18,11 @@ __all__ = [
     "Banniere",
     "Colonne",
     "GrilleSaisie",
+    "Infobulle",
     "ScrollableFrame",
     "Tableau",
     "ZoneFigure",
     "ZoneJournal",
-    "aide_de_l_ecran",
     "carte",
     "pas_de_molette",
 ]
@@ -514,17 +514,44 @@ class Banniere(ttk.Frame):
         return bool(self.winfo_manager())
 
 
-def aide_de_l_ecran(parent: tk.Misc, prefixe: str) -> ttk.Frame:
-    """Trois repères courts de l'écran : ce qu'on y voit, ce que cela signifie, ce qu'on peut faire."""
-    cadre = ttk.Frame(parent, style="Carte.TFrame", padding=(12, 8))
-    for k, rubrique in enumerate(("quoi", "pourquoi", "regarder")):
-        bloc = ttk.Frame(cadre, style="Carte.TFrame")
-        bloc.grid(row=0, column=k, sticky="nsew", padx=(0 if k == 0 else 14, 0))
-        ttk.Label(bloc, text=t(f"aide.{rubrique}"), style="CarteGras.TLabel").pack(anchor="w")
-        etiquette = ttk.Label(
-            bloc, text=t(f"{prefixe}.{rubrique}"), style="CarteDoux.TLabel", wraplength=280, justify="left"
-        )
-        etiquette.pack(anchor="w")
-        cadre.grid_columnconfigure(k, weight=1, uniform="aide")
-        bloc.bind("<Configure>", lambda e, w=etiquette: w.configure(wraplength=max(120, e.width - 8)))
-    return cadre
+class Infobulle:
+    """Texte d'aide d'un composant, affiché après un court survol (le texte est relu à chaque affichage)."""
+
+    DELAI_MS = 500
+
+    def __init__(self, composant: tk.Misc, texte: Callable[[], str]) -> None:
+        self.composant, self.texte = composant, texte
+        self._bulle: tk.Toplevel | None = None
+        self._attente: str | None = None
+        composant.bind("<Enter>", self._programmer, add="+")
+        for evenement in ("<Leave>", "<ButtonPress>", "<FocusOut>"):
+            composant.bind(evenement, self._cacher, add="+")
+
+    def _programmer(self, _evenement: tk.Event) -> None:
+        self._cacher()
+        self._attente = self.composant.after(self.DELAI_MS, self._montrer)
+
+    def _montrer(self) -> None:
+        self._attente = None
+        texte = self.texte()
+        if not texte or self._bulle is not None or not self.composant.winfo_exists():
+            return
+        bulle = tk.Toplevel(self.composant)
+        bulle.wm_overrideredirect(True)
+        x = self.composant.winfo_rootx() + 16
+        y = self.composant.winfo_rooty() + self.composant.winfo_height() + 4
+        bulle.wm_geometry(f"+{x}+{y}")
+        etiquette = ttk.Label(bulle, text=texte, style="Carte.TLabel", relief="solid", borderwidth=1, padding=6)
+        etiquette.configure(wraplength=360, justify="left")
+        etiquette.pack()
+        self._bulle = bulle
+
+    def _cacher(self, _evenement: tk.Event | None = None) -> None:
+        if self._attente is not None:
+            with contextlib.suppress(tk.TclError):
+                self.composant.after_cancel(self._attente)
+            self._attente = None
+        if self._bulle is not None:
+            with contextlib.suppress(tk.TclError):
+                self._bulle.destroy()
+            self._bulle = None

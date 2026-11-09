@@ -1,6 +1,6 @@
 # CODAP C9.7 Jupe-Fond
 
-Vérification CODAP C9.7.5 des assemblages jupe-fond et comparaison à une référence EF
+Vérification CODAP C9.7.5 des assemblages jupe-fond
 
 Application de bureau Python de Philippe Amuzuga, pour Python 3.11 à 3.13 (64 bits, avec Tk).
 
@@ -49,36 +49,25 @@ L’application n’ouvre aucune connexion réseau. Seule l’installation des b
 
 ## Ce que fait l'application
 
-Quatre onglets, ouverts dans l'ordre de votre choix (Ctrl+1 à Ctrl+4) :
+Trois onglets, ouverts dans l'ordre de votre choix (Ctrl+1 à Ctrl+3) :
 
 1. **Cas unique** : les 35 grandeurs de C9.7.5, le type de fond (Korbbogen ou elliptique) et la situation ; Calculer (F5) donne R1 à R7, les coefficients Cij avec δ1, δ2 et λ1, les douze contraintes des trois sections, les trois critères, le taux d'utilisation et le verdict « TENUE : OK » ou « TENUE : non-OK » pour le côté comprimé, le côté tendu et l'enveloppe ; une configuration hors du domaine C9.A6 ou des conditions du raccordement C est signalée. Export en xlsx, csv et projet.json (Ctrl+E).
 2. **Classeur** : un classeur `input_CODAP.xlsx` calculé par lot, ou un classeur de géométrie EF (`input_EF.xlsx`) d'abord converti par la chaîne du programme d'origine ; synthèse ligne par ligne, puis `output_CODAP.xlsx` et `journal_CODAP.txt`.
-3. **Comparaison EF** : à partir de vos propres fichiers de référence EF, deux matrices de confusion contre l'EF, CODAP C9.7.5 et une règle comparée, avec leurs métriques ; export xlsx, csv et png.
-4. **Aide et références** : périmètre, conventions mécaniques, validation et références.
+3. **Aide et références** : périmètre, conventions mécaniques, validation et références.
 
 ![Cas unique](docs/images/fenetre_1_clair.png)
 
-![Comparaison EF](docs/images/fenetre_3_clair.png)
+![Classeur](docs/images/fenetre_2_clair.png)
 
-Les captures des quatre onglets, en thème clair et sombre, sont dans [docs/images](docs/images).
+Les captures des trois onglets, en thème clair et sombre, sont dans [docs/images](docs/images).
 
 ## Conventions mécaniques
 
 - FZ est positif en compression ; aucun effet de fond de la pression n'est ajouté à FZ (il est porté par C71·R1).
-- MZ = F_vent × bras ; le bras vaut 2H par défaut dans la comparaison EF et se règle (onglets Classeur et Comparaison EF).
+- MZ = F_vent × bras ; pour un classeur de géométrie EF, le bras vaut 2H par défaut et se règle dans l'onglet Classeur.
 - Le fond GRC des modèles EF est traité en Korbbogen (ou elliptique) : ce traitement n'a aucune valeur réglementaire, C9.7.2.1 réservant le GRC au raccordement AB.
 - La situation d'essai est sans effets thermiques (R5 = R6 = R7 = 0).
-- Par défaut dans la comparaison EF : f = fj = 150 MPa, E = 210 000 MPa, seuil EF 225 MPa (1,5 f).
 - Périmètre : C9.7.5 complet ; C9.7.6 dans la bibliothèque de calcul, non exposé ; C9.7.7 hors périmètre ; raccordement AB non implémenté.
-
-## Comparer à une référence EF
-
-L'application ne livre aucune donnée d'étude : vous apportez la vôtre. Déposez deux fichiers CSV dans le dossier affiché par l'onglet « Comparaison EF » (par défaut, le sous-dossier `etude` du dossier de données de l'application), ou désignez un autre dossier par la variable d'environnement `CODAPC97JUPEFOND_ETUDE` :
-
-- `ef_unitaires.csv` : une ligne par configuration, avec les colonnes `index`, `e`, `D1`, `H`, `ALPHA`, `R1`, `R2`, `H3`, `D3` (géométrie) et, pour chacun des trois cas unitaires `P` (pression), `T` (effort extérieur) et `W` (vent), les contraintes de Tresca linéarisées `{P,T,W}_TRESCA_LIN_{Z1,Z2,Z3}_{R,L}` ;
-- `contingency_per_case.csv` : `index`, `sigma_ref` (contrainte de référence recalculée), `classe_regle` (`R` résistante, `D` défaillante) pour la règle que vous comparez.
-
-Le dossier `examples/etude_exemple` contient deux fichiers synthétiques de 24 cas, aux valeurs inventées et sans sens mécanique : ils montrent le format et permettent d'essayer l'onglet (`python outils/generer_exemples.py` les régénère). Le bouton « Lancer la comparaison » combine les trois cas unitaires (1,2 MPa, 15 kN et 20 kN), prend la contrainte de Tresca linéarisée maximale des zones Z1 à Z3 des deux côtés, la compare à un seuil (225 MPa = 1,5 f par défaut), calcule les mêmes configurations par C9.7.5 et affiche deux matrices de confusion contre l'EF avec leurs métriques. Positif : configuration résistante selon l'EF.
 
 ## Validation du calcul
 

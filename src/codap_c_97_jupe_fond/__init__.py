@@ -22,10 +22,10 @@ __all__ = [
     "__version__",
 ]
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 NOM = "CODAP C9.7 Jupe-Fond"
-DESCRIPTION = "Vérification CODAP C9.7.5 des assemblages jupe-fond et comparaison à une référence EF"
+DESCRIPTION = "Vérification CODAP C9.7.5 des assemblages jupe-fond"
 SLUG = "CodapC97JupeFond"
 SLUG_MIN = "codap-c-97-jupe-fond"
 AUTEUR = "Philippe Amuzuga"

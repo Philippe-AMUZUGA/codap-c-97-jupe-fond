@@ -25,11 +25,6 @@ module = "domaine"
 classe = "Classeur"
 
 [[ecran]]
-cle = "etude"
-module = "domaine"
-classe = "Etude"
-
-[[ecran]]
 cle = "aide"
 module = "domaine"
 classe = "Aide"

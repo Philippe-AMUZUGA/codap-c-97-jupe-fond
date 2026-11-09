@@ -1,7 +1,7 @@
 """
 Formulaire généré depuis le schéma des entrées : un champ par paramètre, groupé en cartes.
 
-Chaque champ a son libellé, son unité, son aide et un emplacement pour le message d'erreur, juste dessous.
+Chaque champ a son libellé, son unité, son aide (au survol) et un emplacement pour le message d'erreur, juste dessous.
 Le formulaire n'applique aucune règle : `valider` appelle `core.schema.valider`, la même validation que la
 ligne de commande, et marque les champs en défaut d'un coup. Une entrée de type `tableau` est saisie dans une
 grille (`widgets.GrilleSaisie`) : une rangée par ligne, des boutons pour en ajouter ou en retirer. Une entrée
@@ -18,7 +18,7 @@ from typing import Any
 from ..core.erreurs import ErreurSaisie
 from ..core.schema import Champ, valider, valider_champ
 from ..textes import formater_nombre, langue, t
-from .widgets import GrilleSaisie, carte
+from .widgets import GrilleSaisie, Infobulle, carte
 
 __all__ = ["Formulaire"]
 
@@ -70,9 +70,8 @@ class Formulaire(ttk.Frame):
                 info.configure(wraplength=max(160, largeur - debut - 40))
 
     def _ligne(self, cadre: ttk.LabelFrame, ligne: int, champ: Champ) -> None:
-        ttk.Label(cadre, text=champ.libelle_dans(self._langue), style="Carte.TLabel").grid(
-            row=ligne, column=0, sticky="w", padx=(0, 12), pady=(6, 0)
-        )
+        libelle = ttk.Label(cadre, text=champ.libelle_dans(self._langue), style="Carte.TLabel")
+        libelle.grid(row=ligne, column=0, sticky="w", padx=(0, 12), pady=(6, 0))
         saisie = self._saisie(cadre, champ)
         etendue = champ.type == "texte" and not champ.unite
         saisie.grid(row=ligne, column=1, columnspan=2 if etendue else 1, sticky="ew" if etendue else "w", pady=(6, 0))
@@ -81,9 +80,13 @@ class Formulaire(ttk.Frame):
             ttk.Label(cadre, text=champ.unite, style="CarteDoux.TLabel").grid(
                 row=ligne, column=2, sticky="w", padx=(8, 0), pady=(6, 0)
             )
-        info = ttk.Label(cadre, text=champ.aide_dans(self._langue), style="CarteDoux.TLabel", justify="left")
+        # l'aide se lit au survol ; la ligne sous le champ n'existe que pour un message d'erreur
+        info = ttk.Label(cadre, text="", style="CarteErreur.TLabel", justify="left")
         info.grid(row=ligne + 1, column=1, columnspan=2, sticky="w")
+        info.grid_remove()
         self._infos[champ.nom] = info
+        for composant in (saisie, libelle):
+            Infobulle(composant, lambda c=champ: c.aide_dans(self._langue))
 
     def _saisie(self, cadre: ttk.LabelFrame, champ: Champ) -> tk.Widget:
         if champ.type == "tableau":
@@ -202,12 +205,16 @@ class Formulaire(ttk.Frame):
             return
         if erreur:
             info.configure(text=erreur, style="CarteErreur.TLabel")
+            info.grid()
         else:
-            info.configure(text=champ.aide_dans(self._langue), style="CarteDoux.TLabel")
+            info.configure(text="")
+            info.grid_remove()
 
     def message(self, nom: str) -> str:
-        """Texte affiché sous un champ, aide ou erreur (pour les tests)."""
-        return str(self._infos[nom].cget("text"))
+        """Message d'erreur affiché sous un champ, sinon son aide (pour les tests)."""
+        texte = str(self._infos[nom].cget("text"))
+        champ = next(c for c in self.champs if c.nom == nom)
+        return texte or champ.aide_dans(self._langue)
 
     def basculer(self, occupe: bool) -> None:
         """Grise les saisies pendant un calcul."""

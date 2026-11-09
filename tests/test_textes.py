@@ -82,11 +82,11 @@ def test_chaque_cle_composee_a_au_moins_un_texte() -> None:
         assert any(modele.match(c) for c in cles("fr")), f"aucun texte pour {motif}"
 
 
-def test_chaque_ecran_declare_a_son_rail_son_titre_et_ses_trois_reperes() -> None:
+def test_chaque_ecran_declare_a_son_rail_son_titre() -> None:
     declaration = tomllib.loads((PAQUET / "donnees" / "application.toml").read_text(encoding="utf-8"))
     for code in textes.LANGUES:
         for ecran in declaration.get("ecran", []):
-            for suite in ("titre", "aide.quoi", "aide.pourquoi", "aide.regarder"):
+            for suite in ("titre",):
                 assert existe(f"ecran.{ecran['cle']}.{suite}", code), (code, ecran["cle"], suite)
             assert existe(f"rail.{ecran['cle']}", code), (code, ecran["cle"])
 
