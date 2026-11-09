@@ -1,4 +1,4 @@
 # Dépendances de développement pour les tests et le contrôle du style.
 -r requirements.txt
-pytest==9.1.1
+pytest==9.2.0
 ruff==0.16.9
